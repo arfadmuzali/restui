@@ -25,5 +25,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.UrlModel, cmd = m.UrlModel.Update(msg)
 	cmds = append(cmds, cmd)
 
+	m.HintModel, cmd = m.HintModel.Update(msg)
+	cmds = append(cmds, cmd)
+
 	return m, nil
 }

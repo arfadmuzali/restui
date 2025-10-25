@@ -1,7 +1,6 @@
 package url
 
 import (
-	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
@@ -14,7 +13,7 @@ func (m UrlModel) Init() tea.Cmd {
 func (m UrlModel) Update(msg tea.Msg) (UrlModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		urlSize := msg.Width*75/100 - utils.BoxStyle.GetHorizontalBorderSize()
+		urlSize := msg.Width * 75 / 100
 
 		m.UrlInput.Width = urlSize
 	case tea.MouseMsg:
@@ -27,7 +26,7 @@ func (m UrlModel) Update(msg tea.Msg) (UrlModel, tea.Cmd) {
 		}
 	case tea.KeyMsg:
 		switch msg.String() {
-		// WARN: maybe this shortcut will be error in the future
+		// WARN: maybe this shortcut will be bug in the future
 		case "ctrl+l":
 			m.UrlInput.Focus()
 		}

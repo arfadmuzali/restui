@@ -13,8 +13,42 @@ func (m MainModel) View() string {
 		Width(m.WindowWidth).
 		MaxWidth(m.WindowWidth)
 
+	s := lipgloss.Place(
+		m.WindowWidth,
+		m.WindowHeight,
+		lipgloss.Center,
+		lipgloss.Center,
+		mainWrapper.Render(
+			lipgloss.JoinVertical(
+				lipgloss.Center,
+				header(m),
+				body(m),
+				footer(m)),
+		),
+	)
+
+	return zone.Scan(s)
+}
+
+func footer(m MainModel) string {
+
+	bodyHeight := 1
+	bodyWidth := m.WindowWidth
+	s := lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Bottom).Height(bodyHeight).Width(bodyWidth)
+
+	return s.Render(m.HintModel.View())
+}
+
+func body(m MainModel) string {
+	bodyHeight := m.WindowHeight*90/100 - utils.BoxStyle.GetVerticalBorderSize()
+	bodyWidth := m.WindowWidth - utils.BoxStyle.GetHorizontalBorderSize()
+	s := lipgloss.NewStyle().Height(bodyHeight).Width(bodyWidth).Border(lipgloss.HiddenBorder()).Align(lipgloss.Center, lipgloss.Center)
+	return s.Render("2")
+}
+
+func header(m MainModel) string {
 	urlSection := lipgloss.NewStyle().
-		Align(lipgloss.Left, lipgloss.Center)
+		Align(lipgloss.Center, lipgloss.Center).Width(m.WindowWidth).Height(m.WindowHeight * 5 / 100)
 
 	//TODO: dummy method, move this into its module
 
@@ -23,27 +57,19 @@ func (m MainModel) View() string {
 	//TODO: dummy send button, move this into its module
 
 	dummySendButton := lipgloss.NewStyle().
-		Width(m.WindowWidth*10/100).
+		Width(m.WindowWidth*10/100-utils.BoxStyle.GetHorizontalBorderSize()).
 		Align(lipgloss.Center, lipgloss.Center).
-		Bold(true).
 		Foreground(lipgloss.Color("#1971c2")).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("#1971c2"))
 
 	URLAndMethod := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		Width(m.WindowWidth*90/100-utils.BoxStyle.GetHorizontalBorderSize()-2).
-		Render(dummyMethod.Render("DELETE"), utils.RenderSeparator(), m.UrlModel.View())
+		Width(m.WindowWidth*90/100-utils.BoxStyle.GetHorizontalBorderSize()).
+		Render(dummyMethod.Render("DELET"),
+			utils.RenderSeparator(),
+			m.UrlModel.View(),
+		)
 
-	s := lipgloss.Place(
-		m.WindowWidth,
-		m.WindowHeight,
-		lipgloss.Center,
-		lipgloss.Center,
-		mainWrapper.Render(
-			urlSection.Render(lipgloss.JoinHorizontal(lipgloss.Center, URLAndMethod, dummySendButton.Render("SEND"))),
-		),
-	)
-
-	return zone.Scan(s)
+	return urlSection.Render(lipgloss.JoinHorizontal(lipgloss.Top, URLAndMethod, dummySendButton.Render("SEND")))
 }
