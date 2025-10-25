@@ -1,16 +1,48 @@
-# Godot 4+ specific ignores
-.godot/
-.nomedia
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
 
-# Godot-specific ignores
-.import/
-export.cfg
-export_credentials.cfg
+# Output of the go build command
+/bin/
+/build/
+/dist/
+/out/
+/tmp/
 
-# Imported translations (automatically generated from CSV files)
-*.translation
+# Test binary, built with `go test -c`
+*.test
 
-# Mono-specific ignores
-.mono/
-data_*/
-mono_crash.*.json
+# Go coverage outputs
+*.out
+coverage.txt
+coverage.html
+
+# Dependency directories (if you use vendoring)
+vendor/
+
+# Logs
+*.log
+
+# IDE and editor folders
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Env files and configs (optional)
+.env
+.env.local
+.env.*
+
+# Bubbletea specific (optional)
+# Bubbletea apps sometimes store state or cache
+state.json
+.cache/
