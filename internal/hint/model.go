@@ -8,5 +8,6 @@ func New() HintModel {
 	return HintModel{shortcuts: []string{
 		"Quit: ^c",
 		"Focus URL: ^l",
+		"Choose Method: ^h",
 	}}
 }
