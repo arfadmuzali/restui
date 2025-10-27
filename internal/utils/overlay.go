@@ -1,7 +1,9 @@
+// Package overlay provides functionality for compositing text-based UI elements
+// with positioning support.
+// I copied this package from https://github.com/rmhubbert/bubbletea-overlay
 package utils
 
 import (
-	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -95,17 +97,6 @@ func Offsets(fg, bg string, xPos, yPos Position, xOff, yOff int) (int, int) {
 		y = lipgloss.Height(bg) - lipgloss.Height(fg)
 	}
 
-	Debug(
-		"X position: "+strconv.Itoa(int(xPos)),
-		"Y position: "+strconv.Itoa(int(yPos)),
-		"X offset: "+strconv.Itoa(x+xOff),
-		"Y offset: "+strconv.Itoa(y+yOff),
-		"Background width: "+strconv.Itoa(lipgloss.Width(bg)),
-		"Foreground width: "+strconv.Itoa(lipgloss.Width(fg)),
-		"Background height: "+strconv.Itoa(lipgloss.Height(bg)),
-		"Foreground height: "+strconv.Itoa(lipgloss.Height(fg)),
-	)
-
 	return x + xOff, y + yOff
 }
 
@@ -128,7 +119,3 @@ func Lines(s string) []string {
 func Whitespace(length int) string {
 	return strings.Repeat(" ", length)
 }
-
-// Debug is a placeholder function for debug logging.
-// Override this function to implement custom debug logging.
-var Debug = func(...string) {}

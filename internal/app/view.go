@@ -1,7 +1,7 @@
 package app
 
 import (
-	"strings"
+	"fmt"
 
 	"github.com/arfadmuzali/restui/internal/method"
 	"github.com/arfadmuzali/restui/internal/utils"
@@ -61,14 +61,17 @@ func footer(m MainModel) string {
 
 func body(m MainModel) string {
 
+	bodyHeight := m.WindowHeight * 90 / 100
+	bodyWidth := m.WindowWidth
+
 	s := lipgloss.NewStyle().
-		Height(utils.BodyHeight(m.WindowHeight)).
-		Width(utils.BodyWidth(m.WindowWidth)).
-		Border(lipgloss.RoundedBorder()).
-		Align(lipgloss.Center, lipgloss.Center)
+		Height(bodyHeight).
+		Width(bodyWidth).
+		// Border(lipgloss.RoundedBorder()).
+		Align(lipgloss.Left, lipgloss.Top)
 	var xs []string
 
-	for i := 0; i < utils.BodyWidth(m.WindowWidth)*utils.BodyHeight(m.WindowHeight); i++ {
+	for i := 0; i < (bodyHeight)*(bodyWidth); i++ {
 		if i%2 == 0 {
 			xs = append(xs, "o")
 		} else {
@@ -76,12 +79,12 @@ func body(m MainModel) string {
 		}
 	}
 
-	return s.Render(strings.Join(xs, ""))
+	return s.Render(fmt.Sprintf("%v %v, input w %v", bodyHeight, bodyWidth, m.UrlModel.UrlInput.Width))
 }
 
 func header(m MainModel) string {
 	urlSection := lipgloss.NewStyle().
-		Align(lipgloss.Center, lipgloss.Center).Width(m.WindowWidth).Height(m.WindowHeight * 5 / 100)
+		Align(lipgloss.Center, lipgloss.Center).Width(m.WindowWidth)
 
 	var color string
 
@@ -97,26 +100,39 @@ func header(m MainModel) string {
 	case method.DELETE:
 		color = utils.RedColor
 	}
+	// width add 1 (one) cause i use separator
+	method := lipgloss.NewStyle().Width(m.WindowWidth*10/100+1).Align(lipgloss.Center, lipgloss.Center).Foreground(lipgloss.Color(color))
 
-	method := lipgloss.NewStyle().Width(m.WindowWidth*8/100).Align(lipgloss.Center, lipgloss.Center).Foreground(lipgloss.Color(color))
-
-	//TODO: dummy send button, move this into its module
-
-	dummySendButton := lipgloss.NewStyle().
+	sendButton := lipgloss.NewStyle().
 		Width(m.WindowWidth*10/100-utils.BoxStyle.GetHorizontalBorderSize()).
-		Align(lipgloss.Center, lipgloss.Center).
+		Align(lipgloss.Center, lipgloss.Top).
 		Foreground(lipgloss.Color("#1971c2")).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("#1971c2"))
 
+	// dunno why but i have to add the widht by 1
+	if m.WindowWidth%10 != 0 {
+		sendButton = lipgloss.NewStyle().
+			Width(m.WindowWidth*10/100-utils.BoxStyle.GetHorizontalBorderSize()+1).
+			Align(lipgloss.Center, lipgloss.Top).
+			Foreground(lipgloss.Color("#1971c2")).
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("#1971c2"))
+	}
+
+	separator := utils.Separator.Render(utils.Line.Foreground(lipgloss.Color(utils.WhiteColor)).Render())
+
+	if m.UrlModel.UrlInput.Focused() {
+		separator = utils.Separator.Render(utils.Line.BorderForeground(lipgloss.Color(utils.BlueColor)).Render())
+	}
 	URLAndMethod := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
 		Width(m.WindowWidth*90/100-utils.BoxStyle.GetHorizontalBorderSize()).
 		Render(
 			zone.Mark("method", method.Render(utils.BoldStyle.Render(m.MethodModel.ActiveState.String()))),
-			utils.RenderSeparator(),
+			separator,
 			m.UrlModel.View(),
 		)
 
-	return urlSection.Render(lipgloss.JoinHorizontal(lipgloss.Top, URLAndMethod, dummySendButton.Render("SEND")))
+	return urlSection.Render(lipgloss.JoinHorizontal(lipgloss.Left, URLAndMethod, sendButton.Render("SEND")))
 }

@@ -3,8 +3,7 @@ package url
 import "github.com/charmbracelet/bubbles/textinput"
 
 type UrlModel struct {
-	windowWidth int
-	UrlInput    textinput.Model
+	UrlInput textinput.Model
 }
 
 func New() UrlModel {
@@ -12,6 +11,5 @@ func New() UrlModel {
 	ti.Placeholder = "Enter URL"
 	ti.Focus()
 	ti.Prompt = ""
-	ti.Width = 20
 	return UrlModel{UrlInput: ti}
 }

@@ -9,13 +9,10 @@ import (
 func (m UrlModel) Init() tea.Cmd {
 	return textinput.Blink
 }
-
 func (m UrlModel) Update(msg tea.Msg) (UrlModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		urlSize := msg.Width * 75 / 100
-
-		m.UrlInput.Width = urlSize
+		m.UrlInput.Width = msg.Width * 75 / 100
 	case tea.MouseMsg:
 		if msg.Action != tea.MouseActionRelease || msg.Button != tea.MouseButtonLeft {
 			if zone.Get("url").InBounds(msg) {
