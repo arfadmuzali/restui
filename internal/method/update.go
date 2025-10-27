@@ -37,11 +37,17 @@ func (m MethodModel) Update(msg tea.Msg) (MethodModel, tea.Cmd) {
 		if m.OverlayActive == true {
 			switch msg.String() {
 			case "up", "k":
-				if m.ActiveState > 0 {
+				if m.ActiveState >= 0 {
+					if m.ActiveState == 0 {
+						m.ActiveState = 5
+					}
 					m.ActiveState = m.ActiveState - 1
 				}
 			case "down", "j":
-				if m.ActiveState < 4 {
+				if m.ActiveState <= 4 {
+					if m.ActiveState == 4 {
+						m.ActiveState = -1
+					}
 					m.ActiveState = m.ActiveState + 1
 				}
 			case "esc":
