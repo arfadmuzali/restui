@@ -14,7 +14,7 @@ func (m UrlModel) Update(msg tea.Msg) (UrlModel, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.UrlInput.Width = msg.Width * 75 / 100
 	case tea.MouseMsg:
-		if msg.Action != tea.MouseActionRelease || msg.Button != tea.MouseButtonLeft {
+		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft {
 			if zone.Get("url").InBounds(msg) {
 				m.UrlInput.Focus()
 			} else {

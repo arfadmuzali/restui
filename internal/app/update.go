@@ -1,6 +1,8 @@
 package app
 
 import (
+	"github.com/arfadmuzali/restui/internal/response"
+	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
 )
@@ -11,30 +13,58 @@ func (m MainModel) Init() tea.Cmd {
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
-	// case tea.MouseMsg:
-	// 	if msg.Action != tea.MouseActionRelease || msg.Button != tea.MouseButtonLeft {
-	// 		if zone.Get("method").InBounds(msg) {
-	// 			m.OverlayActive = true
-	// 		}
-	// 	}
+	var cmds []tea.Cmd
+	var cmd tea.Cmd
+
+	cmds = append(cmds, cmd)
+	m.UrlModel, cmd = m.UrlModel.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.HintModel, cmd = m.HintModel.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.MethodModel, cmd = m.MethodModel.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.ResponseModel, cmd = m.ResponseModel.Update(msg)
+	cmds = append(cmds, cmd)
+
 	switch msg := msg.(type) {
+	case spinner.TickMsg:
+		var cmd tea.Cmd
+		if m.ResponseModel.IsLoading == true {
+			m.spinner, cmd = m.spinner.Update(msg)
+		}
+		return m, cmd
 	case tea.WindowSizeMsg:
 		m.WindowWidth = msg.Width
 		m.WindowHeight = msg.Height
 
-	case tea.MouseMsg:
-		if msg.Action != tea.MouseActionRelease || msg.Button != tea.MouseButtonLeft {
+	case response.ResultMsg:
+		m.ResponseModel.IsLoading = false
+		m.ResponseModel.Result = msg
 
+		m.ResponseModel.Viewport.SetContent(string(m.ResponseModel.Result.Data))
+		return m, nil
+
+	case response.IsLoadingMsg:
+
+		return m, m.HandleHttpRequest
+
+	case tea.MouseMsg:
+		if msg.Button == tea.MouseButtonLeft && msg.Action == tea.MouseActionRelease {
 			if zone.Get("method").InBounds(msg) {
-				if m.MethodModel.OverlayActive == true {
-					m.MethodModel.OverlayActive = false
-				} else {
-					m.MethodModel.OverlayActive = true
-				}
+				m.MethodModel.OverlayActive = !m.MethodModel.OverlayActive
+			} else if zone.Get("send").InBounds(msg) {
+				return m.StartRequest()
 			}
 		}
 	case tea.KeyMsg:
 		switch msg.String() {
+		case "enter":
+			if m.UrlModel.UrlInput.Focused() {
+				return m.StartRequest()
+			}
 		case "ctrl+c":
 			return m, tea.Quit
 		case "ctrl+h":
@@ -46,18 +76,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
-
-	var cmds []tea.Cmd
-	var cmd tea.Cmd
-
-	m.UrlModel, cmd = m.UrlModel.Update(msg)
-	cmds = append(cmds, cmd)
-
-	m.HintModel, cmd = m.HintModel.Update(msg)
-	cmds = append(cmds, cmd)
-
-	m.MethodModel, cmd = m.MethodModel.Update(msg)
-	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }

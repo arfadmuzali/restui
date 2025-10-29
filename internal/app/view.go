@@ -1,8 +1,6 @@
 package app
 
 import (
-	"fmt"
-
 	"github.com/arfadmuzali/restui/internal/method"
 	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/charmbracelet/lipgloss"
@@ -67,19 +65,43 @@ func body(m MainModel) string {
 	s := lipgloss.NewStyle().
 		Height(bodyHeight).
 		Width(bodyWidth).
-		// Border(lipgloss.RoundedBorder()).
 		Align(lipgloss.Left, lipgloss.Top)
-	var xs []string
 
-	for i := 0; i < (bodyHeight)*(bodyWidth); i++ {
-		if i%2 == 0 {
-			xs = append(xs, "o")
-		} else {
-			xs = append(xs, "x")
-		}
+	requestSection := lipgloss.JoinVertical(
+		lipgloss.Left,
+		// TODO: this is dummy header
+		" Headers | Body",
+		lipgloss.NewStyle().
+			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
+			Width(bodyWidth*40/100-utils.BoxStyle.GetHorizontalBorderSize()).
+			Border(lipgloss.RoundedBorder()).Render(),
+	)
+
+	response := m.ResponseModel.View()
+
+	var responseSection string = lipgloss.JoinVertical(
+		lipgloss.Left,
+		" Response",
+		lipgloss.NewStyle().
+			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
+			Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()).
+			Border(lipgloss.RoundedBorder()).Render(response),
+	)
+	if m.ResponseModel.IsLoading {
+		responseSection = lipgloss.JoinVertical(
+			lipgloss.Left,
+			" Response",
+			lipgloss.NewStyle().
+				Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
+				Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()).
+				Align(lipgloss.Center, lipgloss.Center).
+				Border(lipgloss.RoundedBorder()).Render(m.spinner.View()),
+		)
 	}
 
-	return s.Render(fmt.Sprintf("%v %v, input w %v", bodyHeight, bodyWidth, m.UrlModel.UrlInput.Width))
+	return s.Render(
+		lipgloss.JoinHorizontal(lipgloss.Center, requestSection, responseSection),
+	)
 }
 
 func header(m MainModel) string {
@@ -134,5 +156,5 @@ func header(m MainModel) string {
 			m.UrlModel.View(),
 		)
 
-	return urlSection.Render(lipgloss.JoinHorizontal(lipgloss.Left, URLAndMethod, sendButton.Render("SEND")))
+	return urlSection.Render(lipgloss.JoinHorizontal(lipgloss.Left, URLAndMethod, zone.Mark("send", sendButton.Render("SEND"))))
 }
