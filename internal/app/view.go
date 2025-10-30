@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/arfadmuzali/restui/internal/method"
 	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/charmbracelet/lipgloss"
@@ -74,18 +76,47 @@ func body(m MainModel) string {
 		lipgloss.NewStyle().
 			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
 			Width(bodyWidth*40/100-utils.BoxStyle.GetHorizontalBorderSize()).
-			Border(lipgloss.RoundedBorder()).Render(),
+			Border(lipgloss.RoundedBorder()).Render(fmt.Sprintf("%.2f, responseheight: %v, lencontent: %v",
+			m.ResponseModel.Viewport.ScrollPercent(),
+			m.ResponseModel.ResponseHeight,
+			m.ResponseModel.Viewport.TotalLineCount(),
+		)),
 	)
 
 	response := m.ResponseModel.View()
+
+	var addon int
+	if m.WindowWidth%10 != 0 {
+		addon = 1
+	}
+
+	var hoveredColor string
+	if m.ResponseModel.Hovered {
+		hoveredColor = utils.BlueColor
+	}
+
+	left, right := utils.PrintHorizontalBorder(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1, m.ResponseModel.Viewport.TotalLineCount(), m.ResponseModel.Viewport.ScrollPercent())
+	top, bottom := utils.PrintVerticalBorder(bodyWidth*60/100 + addon)
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Top,
+		lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(top),
+		lipgloss.JoinHorizontal(
+			lipgloss.Top,
+			lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(left),
+			response,
+			lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(right),
+		),
+		lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(bottom),
+	)
 
 	var responseSection string = lipgloss.JoinVertical(
 		lipgloss.Left,
 		" Response",
 		lipgloss.NewStyle().
-			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
-			Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()).
-			Border(lipgloss.RoundedBorder()).Render(response),
+			// Height(bodyHeight-utils.BoxStyle.GetVerticalBorderSize()-1).
+			// Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()+addon).
+			Render(zone.Mark("response", content)),
 	)
 	if m.ResponseModel.IsLoading {
 		responseSection = lipgloss.JoinVertical(
@@ -93,8 +124,9 @@ func body(m MainModel) string {
 			" Response",
 			lipgloss.NewStyle().
 				Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
-				Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()).
+				Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()+addon).
 				Align(lipgloss.Center, lipgloss.Center).
+				BorderForeground(lipgloss.Color(hoveredColor)).
 				Border(lipgloss.RoundedBorder()).Render(m.spinner.View()),
 		)
 	}
@@ -128,18 +160,18 @@ func header(m MainModel) string {
 	sendButton := lipgloss.NewStyle().
 		Width(m.WindowWidth*10/100-utils.BoxStyle.GetHorizontalBorderSize()).
 		Align(lipgloss.Center, lipgloss.Top).
-		Foreground(lipgloss.Color("#1971c2")).
+		Foreground(lipgloss.Color(utils.BlueColor)).
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#1971c2"))
+		BorderForeground(lipgloss.Color(utils.BlueColor))
 
-	// dunno why but i have to add the widht by 1
+	// XXX: dunno why but i have to add the widht by 1
 	if m.WindowWidth%10 != 0 {
 		sendButton = lipgloss.NewStyle().
 			Width(m.WindowWidth*10/100-utils.BoxStyle.GetHorizontalBorderSize()+1).
 			Align(lipgloss.Center, lipgloss.Top).
-			Foreground(lipgloss.Color("#1971c2")).
+			Foreground(lipgloss.Color(utils.BlueColor)).
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#1971c2"))
+			BorderForeground(lipgloss.Color(utils.BlueColor))
 	}
 
 	separator := utils.Separator.Render(utils.Line.Foreground(lipgloss.Color(utils.WhiteColor)).Render())

@@ -1,10 +1,15 @@
 package response
 
-import "github.com/charmbracelet/bubbles/viewport"
+import (
+	"net/http"
+
+	"github.com/charmbracelet/bubbles/viewport"
+)
 
 type ResultMsg struct {
-	Data  []byte
-	Error error
+	Header http.Header
+	Data   []byte
+	Error  error
 }
 
 type IsLoadingMsg bool
@@ -14,8 +19,10 @@ type ResponseModel struct {
 	ResponseHeight int
 	Result         ResultMsg
 	IsLoading      bool
-	Viewport       viewport.Model
-	ViewportReady  bool
+
+	Viewport      viewport.Model
+	ViewportReady bool
+	Hovered       bool
 }
 
 func New() ResponseModel {

@@ -1,7 +1,7 @@
 package app
 
 import (
-	"bytes"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -79,31 +79,35 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 		url = "http://" + url
 	}
 
-	req, err := http.NewRequest(m.MethodModel.ActiveState.String(), url, bytes.NewReader([]byte(`{"nama":"arfad"}`)))
-	headers["Host"] = req.Host
-	if m.MethodModel.ActiveState != method.GET {
-		headers["Content-Type"] = "application/json"
+	responseHeader := http.Header{}
+	req, err := http.NewRequest(m.MethodModel.ActiveState.String(), url, nil)
+	if err != nil {
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Header: responseHeader})
 	}
 
+	headers["Host"] = req.Host
 	for key, value := range headers {
 		req.Header.Set(key, value)
 	}
 
 	// TODO: end dummy headers
 
-	if err != nil {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err})
-	}
-
 	resp, err := client.Do(req)
 	if err != nil {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err})
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Header: responseHeader})
+	}
+	responseHeader = resp.Header
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Unexpected status code: %v", resp.StatusCode), Header: responseHeader})
 	}
 
 	result, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err})
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Header: responseHeader})
 	}
 
-	return response.ResultMsg(response.ResultMsg{Data: result, Error: nil})
+	return response.ResultMsg(response.ResultMsg{Data: result, Error: nil, Header: responseHeader})
 }

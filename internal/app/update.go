@@ -1,10 +1,16 @@
 package app
 
 import (
+	"encoding/json"
+	"net/http"
+	"strings"
+
 	"github.com/arfadmuzali/restui/internal/response"
+	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
+	"github.com/muesli/reflow/wrap"
 )
 
 func (m MainModel) Init() tea.Cmd {
@@ -42,9 +48,41 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case response.ResultMsg:
 		m.ResponseModel.IsLoading = false
+
 		m.ResponseModel.Result = msg
 
-		m.ResponseModel.Viewport.SetContent(string(m.ResponseModel.Result.Data))
+		var s string
+
+		if m.ResponseModel.Result.Error != nil {
+			s = m.ResponseModel.Result.Error.Error()
+		} else {
+			contentType := m.ResponseModel.Result.Header.Get("Content-Type")
+
+			if contentType == "" {
+				contentType = http.DetectContentType(m.ResponseModel.Result.Data)
+			}
+
+			if strings.HasPrefix(contentType, "application/json") {
+				var temp any
+				err := json.Unmarshal(msg.Data, &temp)
+				if err != nil {
+					s = m.ResponseModel.Result.Error.Error()
+					return m, nil
+				}
+
+				body, err := utils.Formatter.Marshal(temp)
+				if err != nil {
+					s = m.ResponseModel.Result.Error.Error()
+					return m, nil
+				}
+
+				s = string(body)
+			} else {
+				s = string(m.ResponseModel.Result.Data)
+			}
+
+		}
+		m.ResponseModel.Viewport.SetContent(wrap.String(s, m.ResponseModel.ResponseWidth))
 		return m, nil
 
 	case response.IsLoadingMsg:
