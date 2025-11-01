@@ -17,6 +17,14 @@ func (m UrlModel) Update(msg tea.Msg) (UrlModel, tea.Cmd) {
 		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft {
 			if zone.Get("url").InBounds(msg) {
 				m.UrlInput.Focus()
+				cursorPosition := msg.X - zone.Get("url").StartX
+				// TODO: FIX this bug: the bug is when the cursor > urlInputWIdth the click cursor doesnt work correctly
+				if m.UrlInput.Width < m.UrlInput.Position() {
+					m.UrlInput.SetCursor(m.UrlInput.Position() - m.UrlInput.Width + cursorPosition)
+				} else {
+					m.UrlInput.SetCursor(cursorPosition)
+				}
+				print(m.UrlInput.Position())
 			} else {
 				m.UrlInput.Blur()
 			}
