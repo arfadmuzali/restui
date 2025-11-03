@@ -82,7 +82,7 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 	responseHeader := http.Header{}
 	req, err := http.NewRequest(m.MethodModel.ActiveState.String(), url, nil)
 	if err != nil {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Header: responseHeader})
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: 500})
 	}
 
 	headers["Host"] = req.Host
@@ -94,20 +94,18 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Header: responseHeader})
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: 0})
 	}
 	responseHeader = resp.Header
 
-	defer resp.Body.Close()
-
 	if resp.StatusCode >= 400 {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Unexpected status code: %v", resp.StatusCode), Header: responseHeader})
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Unexpected status code: %v", resp.StatusCode), Headers: responseHeader, StatusCode: resp.StatusCode})
 	}
 
 	result, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Header: responseHeader})
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: resp.StatusCode})
 	}
 
-	return response.ResultMsg(response.ResultMsg{Data: result, Error: nil, Header: responseHeader})
+	return response.ResultMsg(response.ResultMsg{Data: result, Error: nil, Headers: responseHeader, StatusCode: resp.StatusCode})
 }

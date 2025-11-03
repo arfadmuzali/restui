@@ -6,10 +6,35 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 )
 
+type ResponseTab int
+
+const (
+	Body ResponseTab = iota
+	Headers
+	Cookies
+)
+
+func (r ResponseTab) String() string {
+	switch r {
+	case Body:
+		return "Body"
+	case Headers:
+		return "Headers"
+	case Cookies:
+		return "Cookies"
+	default:
+		return "Unknown"
+	}
+}
+
 type ResultMsg struct {
-	Header http.Header
-	Data   []byte
-	Error  error
+	Cookies            []*http.Cookie
+	StatusCode         int
+	Headers            http.Header
+	Data               []byte
+	Body               string
+	Error              error
+	ResponseFocusedTab string
 }
 
 type IsLoadingMsg bool
@@ -23,8 +48,9 @@ type ResponseModel struct {
 	Viewport      viewport.Model
 	ViewportReady bool
 	Hovered       bool
+	FocusedTab    ResponseTab
 }
 
 func New() ResponseModel {
-	return ResponseModel{}
+	return ResponseModel{FocusedTab: Body}
 }

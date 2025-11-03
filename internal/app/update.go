@@ -1,16 +1,11 @@
 package app
 
 import (
-	"encoding/json"
-	"net/http"
-	"strings"
-
 	"github.com/arfadmuzali/restui/internal/response"
-	"github.com/arfadmuzali/restui/internal/utils"
+	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
-	"github.com/muesli/reflow/wrap"
 )
 
 func (m MainModel) Init() tea.Cmd {
@@ -46,55 +41,17 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.WindowWidth = msg.Width
 		m.WindowHeight = msg.Height
 
-	case response.ResultMsg:
-		m.ResponseModel.IsLoading = false
-
-		m.ResponseModel.Result = msg
-
-		var s string
-
-		if m.ResponseModel.Result.Error != nil {
-			s = m.ResponseModel.Result.Error.Error()
-		} else {
-			contentType := m.ResponseModel.Result.Header.Get("Content-Type")
-
-			if contentType == "" {
-				contentType = http.DetectContentType(m.ResponseModel.Result.Data)
-			}
-
-			if strings.HasPrefix(contentType, "application/json") {
-				var temp any
-				err := json.Unmarshal(msg.Data, &temp)
-				if err != nil {
-					s = m.ResponseModel.Result.Error.Error()
-					return m, nil
-				}
-
-				body, err := utils.Formatter.Marshal(temp)
-				if err != nil {
-					s = m.ResponseModel.Result.Error.Error()
-					return m, nil
-				}
-
-				s = string(body)
-			} else {
-				s = string(m.ResponseModel.Result.Data)
-			}
-
-		}
-		m.ResponseModel.Viewport.SetContent(wrap.String(s, m.ResponseModel.ResponseWidth))
-		return m, nil
-
 	case response.IsLoadingMsg:
-
 		return m, m.HandleHttpRequest
-
 	case tea.MouseMsg:
 		if msg.Button == tea.MouseButtonLeft && msg.Action == tea.MouseActionRelease {
 			if zone.Get("method").InBounds(msg) {
 				m.MethodModel.OverlayActive = !m.MethodModel.OverlayActive
 			} else if zone.Get("send").InBounds(msg) {
 				return m.StartRequest()
+			} else if zone.Get("copyResponseBody").InBounds(msg) {
+				clipboard.WriteAll(string(m.ResponseModel.Result.Data))
+				return m, nil
 			}
 		}
 	case tea.KeyMsg:

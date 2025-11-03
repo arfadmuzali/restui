@@ -2,8 +2,11 @@ package app
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/arfadmuzali/restui/internal/method"
+	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/charmbracelet/lipgloss"
 	zone "github.com/lrstanley/bubblezone"
@@ -83,7 +86,7 @@ func body(m MainModel) string {
 		)),
 	)
 
-	response := m.ResponseModel.View()
+	responseView := m.ResponseModel.View()
 
 	var addon int
 	if m.WindowWidth%10 != 0 {
@@ -104,33 +107,83 @@ func body(m MainModel) string {
 		lipgloss.JoinHorizontal(
 			lipgloss.Top,
 			lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(left),
-			response,
+			responseView,
 			lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(right),
 		),
 		lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(bottom),
 	)
 
-	var responseSection string = lipgloss.JoinVertical(
-		lipgloss.Left,
-		" Response",
-		lipgloss.NewStyle().
-			// Height(bodyHeight-utils.BoxStyle.GetVerticalBorderSize()-1).
-			// Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()+addon).
-			Render(zone.Mark("response", content)),
-	)
+	var responseContent string
 	if m.ResponseModel.IsLoading {
-		responseSection = lipgloss.JoinVertical(
-			lipgloss.Left,
-			" Response",
-			lipgloss.NewStyle().
-				Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
-				Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()+addon).
-				Align(lipgloss.Center, lipgloss.Center).
-				BorderForeground(lipgloss.Color(hoveredColor)).
-				Border(lipgloss.RoundedBorder()).Render(m.spinner.View()),
-		)
+		responseContent = lipgloss.NewStyle().
+			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
+			Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()+addon).
+			Align(lipgloss.Center, lipgloss.Center).
+			BorderForeground(lipgloss.Color(hoveredColor)).
+			Border(lipgloss.RoundedBorder()).Render(m.spinner.View())
+	} else {
+		responseContent = lipgloss.NewStyle().Render(zone.Mark("response", content))
+	}
+	var responseTabs []string
+
+	for i := 0; i < 3; i++ {
+		focusedStyle := lipgloss.NewStyle().Padding(0, 1).Foreground(lipgloss.Color(utils.BlueColor))
+
+		switch i {
+		case 0:
+			if m.ResponseModel.FocusedTab == response.Body {
+				responseTabs = append(responseTabs, zone.Mark("responseBody", focusedStyle.Render("Body")))
+			} else {
+				responseTabs = append(responseTabs, zone.Mark("responseBody", lipgloss.NewStyle().Padding(0, 1).Render("Body")))
+			}
+		case 1:
+			if m.ResponseModel.FocusedTab == response.Headers {
+				responseTabs = append(responseTabs, zone.Mark("responseHeaders", focusedStyle.Render("Headers")))
+			} else {
+				responseTabs = append(responseTabs, zone.Mark("responseHeaders", lipgloss.NewStyle().Padding(0, 1).Render("Headers")))
+			}
+		case 2:
+			if m.ResponseModel.FocusedTab == response.Cookies {
+				responseTabs = append(responseTabs, zone.Mark("responseCookies", focusedStyle.Render("Cookies")))
+			} else {
+				responseTabs = append(responseTabs, zone.Mark("responseCookies", lipgloss.NewStyle().Padding(0, 1).Render("Cookies")))
+			}
+		}
 	}
 
+	var responseStatusCode string
+	if m.ResponseModel.Result.StatusCode == 0 {
+		responseStatusCode = ""
+	} else if m.ResponseModel.Result.StatusCode <= 300 {
+		responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.GreenColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
+	} else if m.ResponseModel.Result.StatusCode <= 400 {
+
+		responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.OrangeColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
+	} else if m.ResponseModel.Result.StatusCode <= 500 {
+
+		responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
+	}
+
+	var copyButton string
+	if m.ResponseModel.FocusedTab == response.Body && m.ResponseModel.Result.Data != nil {
+		copyButton = zone.Mark("copyResponseBody", lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.OrangeColor)).Render("Copy-Response"))
+	}
+
+	responseSection := lipgloss.JoinVertical(
+		lipgloss.Left,
+
+		lipgloss.JoinHorizontal(
+			lipgloss.Left,
+			lipgloss.NewStyle().Width(bodyWidth*30/100).Align(lipgloss.Left, lipgloss.Center).Render(
+				strings.Join(responseTabs, "|"),
+			),
+			lipgloss.NewStyle().Width(bodyWidth*30/100).Align(lipgloss.Right, lipgloss.Center).Render(
+				lipgloss.NewStyle().Bold(true).Padding(0, 1).Render(copyButton, responseStatusCode),
+			),
+		),
+
+		responseContent,
+	)
 	return s.Render(
 		lipgloss.JoinHorizontal(lipgloss.Center, requestSection, responseSection),
 	)
