@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/arfadmuzali/restui/internal/request"
 	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -17,10 +18,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
 
-	cmds = append(cmds, cmd)
-	m.UrlModel, cmd = m.UrlModel.Update(msg)
-	cmds = append(cmds, cmd)
-
 	m.HintModel, cmd = m.HintModel.Update(msg)
 	cmds = append(cmds, cmd)
 
@@ -28,6 +25,9 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	m.ResponseModel, cmd = m.ResponseModel.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.RequestModel, cmd = m.RequestModel.Update(msg)
 	cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
@@ -60,6 +60,9 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.UrlModel.UrlInput.Focused() {
 				return m.StartRequest()
 			}
+
+		case "alt+enter":
+			return m.StartRequest()
 		case "ctrl+c":
 			return m, tea.Quit
 		case "ctrl+h":
@@ -69,8 +72,22 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.MethodModel.OverlayActive = true
 				m = m.BlurAllInput()
 			}
+			return m, nil
+		// WARN: maybe this shortcut will be bug in the future
+		case "ctrl+l":
+			m.UrlModel.UrlInput.Focus()
+			m = m.BlurAllInput("url")
+			return m, nil
+		case "ctrl+b":
+			m = m.BlurAllInput("requestBody")
+			m.RequestModel.FocusedTab = request.Body
+			m.RequestModel.TextArea.Focus()
+
+			return m, nil
 		}
 	}
 
+	m.UrlModel, cmd = m.UrlModel.Update(msg)
+	cmds = append(cmds, cmd)
 	return m, tea.Batch(cmds...)
 }

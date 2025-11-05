@@ -1,11 +1,11 @@
 package app
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/arfadmuzali/restui/internal/method"
+	"github.com/arfadmuzali/restui/internal/request"
 	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/charmbracelet/lipgloss"
@@ -72,20 +72,49 @@ func body(m MainModel) string {
 		Width(bodyWidth).
 		Align(lipgloss.Left, lipgloss.Top)
 
+	// Request Section (left section)
+	var requestTabs []string
+
+	var requestHoveredColor string
+
+	if m.RequestModel.Hovered {
+		requestHoveredColor = utils.BlueColor
+	}
+
+	for i := 0; i < 2; i++ {
+		focusedTabStyle := lipgloss.NewStyle().Padding(0, 1).Foreground(lipgloss.Color(utils.BlueColor))
+		switch i {
+		case 0:
+			if m.RequestModel.FocusedTab == request.Body {
+				requestTabs = append(requestTabs, zone.Mark("requestBody", focusedTabStyle.Render("Body")))
+			} else {
+				requestTabs = append(requestTabs, zone.Mark("requestBody", lipgloss.NewStyle().Padding(0, 1).Render("Body")))
+			}
+		case 1:
+			if m.RequestModel.FocusedTab == request.Headers {
+				requestTabs = append(requestTabs, zone.Mark("requestHeaders", focusedTabStyle.Render("Headers")))
+			} else {
+				requestTabs = append(requestTabs, zone.Mark("requestHeaders", lipgloss.NewStyle().Padding(0, 1).Render("Headers")))
+			}
+		}
+	}
+
 	requestSection := lipgloss.JoinVertical(
 		lipgloss.Left,
-		// TODO: this is dummy header
-		" Headers | Body",
+		lipgloss.NewStyle().Align(lipgloss.Left).Render(strings.Join(requestTabs, "|")),
 		lipgloss.NewStyle().
 			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
 			Width(bodyWidth*40/100-utils.BoxStyle.GetHorizontalBorderSize()).
-			Border(lipgloss.RoundedBorder()).Render(fmt.Sprintf("%.2f, responseheight: %v, lencontent: %v",
-			m.ResponseModel.Viewport.ScrollPercent(),
-			m.ResponseModel.ResponseHeight,
-			m.ResponseModel.Viewport.TotalLineCount(),
-		)),
-	)
+			BorderForeground(lipgloss.Color(requestHoveredColor)).
+			Border(lipgloss.RoundedBorder()).Render(
+			// fmt.Sprintf("%.2f, responseheight: %v, lencontent: %v",
+			// m.ResponseModel.Viewport.ScrollPercent(),
+			// m.ResponseModel.ResponseHeight,
+			// m.ResponseModel.Viewport.TotalLineCount(),
+			m.RequestModel.View(),
+		))
 
+	// Response Section (right section)
 	responseView := m.ResponseModel.View()
 
 	var addon int
@@ -93,9 +122,9 @@ func body(m MainModel) string {
 		addon = 1
 	}
 
-	var hoveredColor string
+	var responseHoveredColor string
 	if m.ResponseModel.Hovered {
-		hoveredColor = utils.BlueColor
+		responseHoveredColor = utils.BlueColor
 	}
 
 	left, right := utils.PrintHorizontalBorder(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1, m.ResponseModel.Viewport.TotalLineCount(), m.ResponseModel.Viewport.ScrollPercent())
@@ -103,14 +132,14 @@ func body(m MainModel) string {
 
 	content := lipgloss.JoinVertical(
 		lipgloss.Top,
-		lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(top),
+		lipgloss.NewStyle().Foreground(lipgloss.Color(responseHoveredColor)).Render(top),
 		lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(left),
+			lipgloss.NewStyle().Foreground(lipgloss.Color(responseHoveredColor)).Render(left),
 			responseView,
-			lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(right),
+			lipgloss.NewStyle().Foreground(lipgloss.Color(responseHoveredColor)).Render(right),
 		),
-		lipgloss.NewStyle().Foreground(lipgloss.Color(hoveredColor)).Render(bottom),
+		lipgloss.NewStyle().Foreground(lipgloss.Color(responseHoveredColor)).Render(bottom),
 	)
 
 	var responseContent string
@@ -119,7 +148,7 @@ func body(m MainModel) string {
 			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
 			Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()+addon).
 			Align(lipgloss.Center, lipgloss.Center).
-			BorderForeground(lipgloss.Color(hoveredColor)).
+			BorderForeground(lipgloss.Color(responseHoveredColor)).
 			Border(lipgloss.RoundedBorder()).Render(m.spinner.View())
 	} else {
 		responseContent = lipgloss.NewStyle().Render(zone.Mark("response", content))

@@ -62,12 +62,16 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 				err := json.Unmarshal(msg.Data, &temp)
 				if err != nil {
 					s = m.Result.Error.Error()
+					m.Result.Body = wrap.String(s, m.ResponseWidth)
+					m.Viewport.SetContent(m.Result.Body)
 					return m, nil
 				}
 
 				body, err := utils.Formatter.Marshal(temp)
 				if err != nil {
 					s = m.Result.Error.Error()
+					m.Result.Body = wrap.String(s, m.ResponseWidth)
+					m.Viewport.SetContent(m.Result.Body)
 					return m, nil
 				}
 

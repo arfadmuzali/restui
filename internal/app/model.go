@@ -1,6 +1,8 @@
 package app
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,6 +11,7 @@ import (
 
 	"github.com/arfadmuzali/restui/internal/hint"
 	"github.com/arfadmuzali/restui/internal/method"
+	"github.com/arfadmuzali/restui/internal/request"
 	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/arfadmuzali/restui/internal/url"
 	"github.com/arfadmuzali/restui/internal/utils"
@@ -26,6 +29,7 @@ type MainModel struct {
 	HintModel     hint.HintModel
 	MethodModel   method.MethodModel
 	ResponseModel response.ResponseModel
+	RequestModel  request.RequestModel
 }
 
 func InitModel() MainModel {
@@ -39,14 +43,23 @@ func InitModel() MainModel {
 		HintModel:     hint.New(),
 		MethodModel:   method.New(),
 		ResponseModel: response.New(),
+		RequestModel:  request.New(),
 		spinner:       s,
 	}
 
 	return model
 }
 
-func (m MainModel) BlurAllInput() MainModel {
-	m.UrlModel.UrlInput.Blur()
+func (m MainModel) BlurAllInput(exeptions ...string) MainModel {
+	exs := make(map[string]bool, len(exeptions))
+	for _, value := range exeptions {
+		exs[value] = true
+	}
+	if !exs["url"] {
+		m.UrlModel.UrlInput.Blur()
+	} else if !exs["requestBody"] {
+		m.RequestModel.TextArea.Blur()
+	}
 	return m
 }
 
@@ -80,12 +93,30 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 	}
 
 	responseHeader := http.Header{}
-	req, err := http.NewRequest(m.MethodModel.ActiveState.String(), url, nil)
+
+	requestBody := bytes.NewReader([]byte(m.RequestModel.TextArea.Value()))
+
+	if _, isBodyexists := headers["Content-Type"]; requestBody.Len() > 0 && !isBodyexists {
+		headers["Content-Type"] = "application/json"
+	}
+
+	var js any
+	testerror := json.Unmarshal([]byte(m.RequestModel.TextArea.Value()), &js)
+
+	// if !json.Valid([]byte(m.RequestModel.TextArea.Value())) &&
+	if testerror != nil &&
+		headers["Content-Type"] == "application/json" &&
+		m.MethodModel.ActiveState != method.GET {
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Something wrong with your request body\n%s", testerror.Error()), Headers: responseHeader, StatusCode: 400})
+	}
+
+	req, err := http.NewRequest(m.MethodModel.ActiveState.String(), url, requestBody)
 	if err != nil {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: 500})
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: 404})
 	}
 
 	headers["Host"] = req.Host
+
 	for key, value := range headers {
 		req.Header.Set(key, value)
 	}
@@ -103,6 +134,7 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 	}
 
 	result, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: resp.StatusCode})
 	}

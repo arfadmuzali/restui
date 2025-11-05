@@ -9,5 +9,7 @@ func New() HintModel {
 		"Quit: ^c",
 		"Focus URL: ^l",
 		"Choose Method: ^h",
+		"Focus Body: ^b",
+		"Send Request: alt+enter",
 	}}
 }

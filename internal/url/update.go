@@ -30,12 +30,6 @@ func (m UrlModel) Update(msg tea.Msg) (UrlModel, tea.Cmd) {
 				m.UrlInput.Blur()
 			}
 		}
-	case tea.KeyMsg:
-		switch msg.String() {
-		// WARN: maybe this shortcut will be bug in the future
-		case "ctrl+l":
-			m.UrlInput.Focus()
-		}
 
 	}
 	var cmd tea.Cmd
