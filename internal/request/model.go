@@ -4,6 +4,9 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
+	"github.com/muesli/reflow/wrap"
 )
 
 type RequestTab int
@@ -25,11 +28,17 @@ func (r RequestTab) String() string {
 	}
 }
 
+type Header struct {
+	Key   string
+	Value string
+}
+
 type RequestModel struct {
 	Hovered       bool
 	Viewport      viewport.Model
 	ViewportReady bool
 	TextArea      textarea.Model
+	Headers       []Header
 
 	FocusedTab RequestTab
 
@@ -46,6 +55,31 @@ func New() RequestModel {
 	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	ta.Prompt = ""
 	ta.SetWidth(20)
+	headers := []Header{}
+	headers = append(headers, Header{Key: "User-Agent", Value: "RESTUI/0.0.1"})
+	headers = append(headers, Header{Key: "Accept", Value: "*/*"})
 
-	return RequestModel{FocusedTab: Body, TextArea: ta}
+	return RequestModel{FocusedTab: Body, TextArea: ta, Headers: headers}
+}
+
+func (m RequestModel) CreateHeadersTable() table.Writer {
+
+	t := table.NewWriter()
+	t.Style().Size.WidthMin = m.RequestWidth
+	t.Style().Box.UnfinishedRow = ""
+	t.Style().Color.RowAlternate = text.Colors{text.BgBlack}
+	t.Style().Box = table.BoxStyle{
+		PaddingLeft:  " ",
+		PaddingRight: " ",
+	}
+	t.Style().Options = table.Options{
+		DrawBorder:      false,
+		SeparateColumns: false,
+		SeparateHeader:  true,
+		SeparateRows:    false,
+	}
+	for _, header := range m.Headers {
+		t.AppendRow(table.Row{wrap.String(header.Key, m.RequestWidth*40/100), wrap.String(header.Value, m.RequestWidth*60/100)})
+	}
+	return t
 }

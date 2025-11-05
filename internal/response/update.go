@@ -3,6 +3,7 @@ package response
 import (
 	"encoding/json"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/arfadmuzali/restui/internal/utils"
@@ -101,7 +102,7 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 				})
 				t.Style().Size.WidthMin = m.ResponseWidth
 				t.Style().Box.UnfinishedRow = ""
-				t.Style().Color.RowAlternate = text.Colors{text.FgBlue}
+				t.Style().Color.RowAlternate = text.Colors{text.BgBlack}
 				t.Style().Box = table.BoxStyle{
 					MiddleHorizontal: "─",
 					PaddingLeft:      " ",
@@ -113,8 +114,14 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 					SeparateHeader:  true,
 					SeparateRows:    false,
 				}
-				for key, value := range m.Result.Headers {
-					t.AppendRow(table.Row{wrap.String(key, m.ResponseWidth*40/100), wrap.String(strings.Join(value, ","), m.ResponseWidth*60/100-2)})
+				headers := make([]string, 0)
+
+				for key := range m.Result.Headers {
+					headers = append(headers, key)
+				}
+				sort.Strings(headers)
+				for _, key := range headers {
+					t.AppendRow(table.Row{wrap.String(key, m.ResponseWidth*40/100), wrap.String(m.Result.Headers.Get(key), m.ResponseWidth*60/100-2)})
 				}
 				m.Viewport.SetContent(t.Render())
 			} else if zone.Get("responseCookies").InBounds(msg) {

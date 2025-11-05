@@ -28,6 +28,7 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 		m.RequestWidth = msg.Width*40/100 - utils.BoxStyle.GetHorizontalBorderSize()
 
 		m.TextArea.SetWidth(m.RequestWidth)
+		m.TextArea.SetHeight(m.RequestHeight)
 		m.TextArea.MaxWidth = m.RequestWidth
 
 		if !m.ViewportReady {
@@ -40,19 +41,21 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 		}
 	case tea.MouseMsg:
 		m.Hovered = zone.Get("request").InBounds(msg)
+
 		if m.Hovered && m.FocusedTab == Body {
 			m.TextArea.Focus()
 		} else {
 			m.TextArea.Blur()
 		}
+
 		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft {
 
 			if zone.Get("requestBody").InBounds(msg) {
 				m.FocusedTab = Body
-				m.Viewport.SetContent(m.TextArea.View())
 				m.TextArea.Focus()
 			} else if zone.Get("requestHeaders").InBounds(msg) {
 				m.FocusedTab = Headers
+
 			}
 		}
 	}
