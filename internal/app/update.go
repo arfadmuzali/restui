@@ -27,9 +27,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.ResponseModel, cmd = m.ResponseModel.Update(msg)
 	cmds = append(cmds, cmd)
 
-	m.RequestModel, cmd = m.RequestModel.Update(msg)
-	cmds = append(cmds, cmd)
-
 	switch msg := msg.(type) {
 	case spinner.TickMsg:
 		var cmd tea.Cmd
@@ -83,11 +80,14 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.RequestModel.FocusedTab = request.Body
 			m.RequestModel.TextArea.Focus()
 
-			return m, nil
 		}
 	}
 
+	m.RequestModel, cmd = m.RequestModel.Update(msg)
+	cmds = append(cmds, cmd)
+
 	m.UrlModel, cmd = m.UrlModel.Update(msg)
 	cmds = append(cmds, cmd)
+
 	return m, tea.Batch(cmds...)
 }

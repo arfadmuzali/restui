@@ -1,12 +1,13 @@
 package request
 
 import (
+	"github.com/arfadmuzali/restui/internal/utils"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textarea"
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jedib0t/go-pretty/v6/text"
-	"github.com/muesli/reflow/wrap"
 )
 
 type RequestTab int
@@ -37,9 +38,13 @@ type RequestModel struct {
 	Hovered       bool
 	Viewport      viewport.Model
 	ViewportReady bool
-	TextArea      textarea.Model
-	Headers       []Header
 
+	TextArea     textarea.Model
+	TableHeaders table.Model
+	KeyInput     textinput.Model
+	ValueInput   textinput.Model
+
+	Headers    []Header
 	FocusedTab RequestTab
 
 	RequestHeight int
@@ -49,37 +54,60 @@ type RequestModel struct {
 func New() RequestModel {
 	ta := textarea.New()
 	ta.Placeholder = "Enter your request body, please define your Content-Type on Headers section"
-	ta.ShowLineNumbers = false
+	ta.ShowLineNumbers = true
 	ta.KeyMap.WordBackward.SetKeys("alt+left", "ctrl+left")
 	ta.KeyMap.WordForward.SetKeys("alt+right", "ctrl+right")
 	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	ta.Prompt = ""
 	ta.SetWidth(20)
-	headers := []Header{}
-	headers = append(headers, Header{Key: "User-Agent", Value: "RESTUI/0.0.1"})
-	headers = append(headers, Header{Key: "Accept", Value: "*/*"})
 
-	return RequestModel{FocusedTab: Body, TextArea: ta, Headers: headers}
-}
+	keyInput := textinput.New()
+	keyInput.Prompt = ""
+	keyInput.Placeholder = "Enter key"
 
-func (m RequestModel) CreateHeadersTable() table.Writer {
+	valueInput := textinput.New()
+	valueInput.Prompt = ""
+	valueInput.Placeholder = "Enter value"
 
-	t := table.NewWriter()
-	t.Style().Size.WidthMin = m.RequestWidth
-	t.Style().Box.UnfinishedRow = ""
-	t.Style().Color.RowAlternate = text.Colors{text.BgBlack}
-	t.Style().Box = table.BoxStyle{
-		PaddingLeft:  " ",
-		PaddingRight: " ",
+	headers := []Header{
+		{Key: "User-Agent", Value: "RESTUI/0.0.1"},
+		{Key: "Accept", Value: "*/*"},
 	}
-	t.Style().Options = table.Options{
-		DrawBorder:      false,
-		SeparateColumns: false,
-		SeparateHeader:  true,
-		SeparateRows:    false,
+
+	tableHeadersValue := make([]table.Row, 0, len(headers))
+
+	for _, h := range headers {
+		tableHeadersValue = append(tableHeadersValue, table.Row{h.Key, h.Value})
 	}
-	for _, header := range m.Headers {
-		t.AppendRow(table.Row{wrap.String(header.Key, m.RequestWidth*40/100), wrap.String(header.Value, m.RequestWidth*60/100)})
-	}
-	return t
+
+	tableHeaders := table.New(
+		table.WithFocused(true),
+		table.WithColumns([]table.Column{{Title: "Key"}, {Title: "Value"}}),
+		table.WithRows(tableHeadersValue),
+		table.WithKeyMap(table.KeyMap{
+			LineUp: key.NewBinding(
+				key.WithKeys("up", "ctrl+k"),
+				key.WithHelp("↑/k", "up"),
+			),
+			LineDown: key.NewBinding(
+				key.WithKeys("down", "ctrl+j"),
+				key.WithHelp("↓", "down"),
+			),
+		}),
+	)
+
+	tableStyle := table.DefaultStyles()
+	tableStyle.Header = tableStyle.Header.
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(utils.WhiteColor)).
+		BorderBottom(true).
+		Bold(true)
+
+	tableStyle.Selected = tableStyle.Selected.
+		Background(lipgloss.Color(utils.GrayColor)).
+		Foreground(lipgloss.Color(utils.BlueColor)).
+		Bold(false)
+	tableHeaders.SetStyles(tableStyle)
+
+	return RequestModel{FocusedTab: Body, TextArea: ta, Headers: headers, KeyInput: keyInput, ValueInput: valueInput, TableHeaders: tableHeaders}
 }

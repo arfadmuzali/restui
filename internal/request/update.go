@@ -1,7 +1,10 @@
 package request
 
 import (
+	"strings"
+
 	"github.com/arfadmuzali/restui/internal/utils"
+	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,8 +18,20 @@ func (m RequestModel) Init() tea.Cmd {
 func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
+
 	m.TextArea, cmd = m.TextArea.Update(msg)
 	cmds = append(cmds, cmd)
+	if m.Hovered {
+		m.TableHeaders, cmd = m.TableHeaders.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+
+	m.ValueInput, cmd = m.ValueInput.Update(msg)
+	cmds = append(cmds, cmd)
+
+	m.KeyInput, cmd = m.KeyInput.Update(msg)
+	cmds = append(cmds, cmd)
+
 	m.Viewport, cmd = m.Viewport.Update(msg)
 	cmds = append(cmds, cmd)
 
@@ -29,7 +44,12 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 
 		m.TextArea.SetWidth(m.RequestWidth)
 		m.TextArea.SetHeight(m.RequestHeight)
-		m.TextArea.MaxWidth = m.RequestWidth
+
+		m.TableHeaders.SetColumns([]table.Column{{Title: "Key", Width: m.RequestWidth * 50 / 100}, {Title: "Value", Width: m.RequestWidth * 50 / 100}})
+		m.TableHeaders.SetHeight(m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1)
+
+		m.ValueInput.Width = m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1
+		m.KeyInput.Width = m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1
 
 		if !m.ViewportReady {
 			m.Viewport = viewport.New(m.RequestWidth, m.RequestHeight)
@@ -39,6 +59,108 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 			m.Viewport.Width = m.RequestWidth
 			m.Viewport.Height = m.RequestHeight
 		}
+		switch m.FocusedTab {
+		case Body:
+			m.Viewport.Height = m.RequestHeight
+		case Headers:
+			// minus border vertical + 1 for input header
+			m.Viewport.Height = m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1
+		}
+
+	case tea.KeyMsg:
+
+		switch msg.String() {
+		case "tab":
+			if m.ValueInput.Focused() {
+				m.ValueInput.Blur()
+				m.KeyInput.Focus()
+			} else {
+				m.ValueInput.Focus()
+				m.KeyInput.Blur()
+			}
+			return m, nil
+		case "ctrl+d":
+			if m.Hovered && m.FocusedTab == Headers && len(m.Headers) > 0 {
+
+				tempHeader := make([]Header, 0, len(m.Headers))
+
+				idxSelectedRowKey := m.TableHeaders.Cursor()
+				for _, h := range m.Headers {
+					selectedRowKey := m.TableHeaders.Rows()[idxSelectedRowKey][0]
+					if selectedRowKey != h.Key {
+						tempHeader = append(tempHeader, h)
+					}
+				}
+
+				m.Headers = tempHeader
+				tableHeadersValue := make([]table.Row, 0, len(m.Headers))
+
+				for _, h := range m.Headers {
+					tableHeadersValue = append(tableHeadersValue, table.Row{h.Key, h.Value})
+				}
+				// check if its the end of headers
+				// WARN: i don't know how this work
+				if idxSelectedRowKey == len(m.Headers) {
+					m.TableHeaders.SetCursor(0)
+				}
+
+				m.TableHeaders.SetRows(tableHeadersValue)
+				m.KeyInput.SetValue("")
+				m.ValueInput.SetValue("")
+
+				return m, nil
+			}
+		case "enter":
+			if m.KeyInput.Focused() || m.ValueInput.Focused() {
+
+				m.KeyInput.SetValue(strings.TrimSpace(m.KeyInput.Value()))
+
+				if len(m.KeyInput.Value()) > 0 &&
+					len(m.ValueInput.Value()) > 0 {
+
+					// make sure that keys are not doubled
+					tempHeader := make([]Header, 0, len(m.Headers))
+					var isDoubled bool
+
+					for _, h := range m.Headers {
+						if m.KeyInput.Value() == h.Key {
+							tempHeader = append(tempHeader, Header{Key: h.Key, Value: m.ValueInput.Value()})
+							isDoubled = true
+						} else {
+							tempHeader = append(tempHeader, h)
+						}
+					}
+
+					if isDoubled {
+						m.Headers = tempHeader
+
+						tableHeadersValue := make([]table.Row, 0, len(m.Headers))
+
+						for _, h := range m.Headers {
+							tableHeadersValue = append(tableHeadersValue, table.Row{h.Key, h.Value})
+						}
+						m.TableHeaders.SetRows(tableHeadersValue)
+						m.KeyInput.SetValue("")
+						m.ValueInput.SetValue("")
+						return m, nil
+					}
+
+					m.Headers = append(m.Headers, Header{Value: m.ValueInput.Value(), Key: m.KeyInput.Value()})
+
+					tableHeadersValue := make([]table.Row, 0, len(m.Headers))
+
+					for _, h := range m.Headers {
+						tableHeadersValue = append(tableHeadersValue, table.Row{h.Key, h.Value})
+					}
+
+					m.TableHeaders.SetRows(tableHeadersValue)
+				}
+			}
+			m.KeyInput.SetValue("")
+			m.ValueInput.SetValue("")
+			return m, nil
+		}
+
 	case tea.MouseMsg:
 		m.Hovered = zone.Get("request").InBounds(msg)
 
@@ -48,16 +170,56 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 			m.TextArea.Blur()
 		}
 
+		if m.Hovered && m.FocusedTab == Body {
+			m.Viewport.SetContent(m.TextArea.View())
+		} else if m.Hovered && m.FocusedTab == Headers {
+			m.Viewport.SetContent(
+				m.TableHeaders.View(),
+			)
+		}
+
+		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonRight {
+			if m.Hovered {
+				temp := []Header{}
+				for _, header := range m.Headers {
+					if !zone.Get(header.Key).InBounds(msg) {
+						temp = append(temp, header)
+					}
+				}
+				m.Headers = temp
+			}
+		}
 		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft {
+
+			if zone.Get("keyInputHeader").InBounds(msg) {
+				m.KeyInput.Focus()
+			} else {
+				m.KeyInput.Blur()
+			}
+
+			if zone.Get("valueInputHeader").InBounds(msg) {
+				m.ValueInput.Focus()
+			} else {
+				m.ValueInput.Blur()
+			}
 
 			if zone.Get("requestBody").InBounds(msg) {
 				m.FocusedTab = Body
+				m.Hovered = true
 				m.TextArea.Focus()
+				m.Viewport.SetContent(m.TextArea.View())
+				m.Viewport.Height = m.RequestHeight
 			} else if zone.Get("requestHeaders").InBounds(msg) {
 				m.FocusedTab = Headers
+				m.Hovered = true
+				m.Viewport.Height = m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1
+				m.Viewport.SetContent(
+					m.TableHeaders.View(),
+				)
 
 			}
 		}
 	}
+
 	return m, tea.Batch(cmds...)
 }

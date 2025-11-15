@@ -91,9 +91,11 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft {
 			if zone.Get("responseBody").InBounds(msg) {
 				m.FocusedTab = Body
+				m.Hovered = true
 				m.Viewport.SetContent(m.Result.Body)
 			} else if zone.Get("responseHeaders").InBounds(msg) {
 				m.FocusedTab = Headers
+				m.Hovered = true
 
 				t := table.NewWriter()
 				t.AppendHeader(table.Row{
@@ -127,6 +129,7 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 			} else if zone.Get("responseCookies").InBounds(msg) {
 				m.Viewport.SetContent("Cookies section is comming soon")
 				m.FocusedTab = Cookies
+				m.Hovered = true
 			}
 		}
 	}

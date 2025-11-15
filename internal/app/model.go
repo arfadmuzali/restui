@@ -52,14 +52,17 @@ func InitModel() MainModel {
 
 func (m MainModel) BlurAllInput(exeptions ...string) MainModel {
 	exs := make(map[string]bool, len(exeptions))
+
 	for _, value := range exeptions {
 		exs[value] = true
 	}
+
 	if !exs["url"] {
 		m.UrlModel.UrlInput.Blur()
 	} else if !exs["requestBody"] {
 		m.RequestModel.TextArea.Blur()
 	}
+
 	return m
 }
 
@@ -81,7 +84,11 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 	}
 
 	// TODO: start dummy headers
-	headers := map[string]string{"User-Agent": "RESTUI/0.0.1", "Accept": "*/*"}
+	headers := map[string]string{}
+
+	for _, header := range m.RequestModel.Headers {
+		headers[header.Key] = header.Value
+	}
 
 	url := m.UrlModel.UrlInput.Value()
 
@@ -107,7 +114,7 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 	if testerror != nil &&
 		headers["Content-Type"] == "application/json" &&
 		m.MethodModel.ActiveState != method.GET {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Something wrong with your request body\n%s", testerror.Error()), Headers: responseHeader, StatusCode: 400})
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Something wrong with your request body\n %s", testerror.Error()), Headers: responseHeader, StatusCode: 400})
 	}
 
 	req, err := http.NewRequest(m.MethodModel.ActiveState.String(), url, requestBody)
