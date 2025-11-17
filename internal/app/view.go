@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -13,11 +14,26 @@ import (
 )
 
 func (m MainModel) View() string {
+
+	if m.WindowWidth < 100 || m.WindowHeight < 32 {
+		wrapper := lipgloss.NewStyle().
+			Align(lipgloss.Center, lipgloss.Center).
+			Height(m.WindowHeight).
+			Width(m.WindowWidth)
+		return wrapper.Render(lipgloss.JoinVertical(
+			lipgloss.Center,
+			"Terminal size is too small",
+			fmt.Sprintf("%v < 100 x %v < 32",
+				lipgloss.NewStyle().Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.WindowWidth)),
+				lipgloss.NewStyle().Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.WindowHeight)),
+			),
+		))
+	}
+
 	mainWrapper := lipgloss.NewStyle().
 		Align(lipgloss.Center, lipgloss.Top).
 		Height(m.WindowHeight).
-		Width(m.WindowWidth).
-		MaxWidth(m.WindowWidth)
+		Width(m.WindowWidth)
 
 	layout := lipgloss.Place(
 		m.WindowWidth,
