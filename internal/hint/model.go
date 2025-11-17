@@ -11,5 +11,6 @@ func New() HintModel {
 		"Choose Method: ^h",
 		"Focus Body: ^b",
 		"Send Request: alt+enter",
+		"Help: ?",
 	}}
 }
