@@ -1,4 +1,4 @@
-# Restui
+# RESTUI
 
 RESTUI is a Terminal User Interface API client designed for testing HTTP requests directly into your terminal.
 
