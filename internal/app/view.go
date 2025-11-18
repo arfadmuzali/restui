@@ -15,7 +15,7 @@ import (
 
 func (m MainModel) View() string {
 
-	if m.WindowWidth < 100 || m.WindowHeight < 32 {
+	if m.WindowWidth < 75 || m.WindowHeight < 32 {
 		wrapper := lipgloss.NewStyle().
 			Align(lipgloss.Center, lipgloss.Center).
 			Height(m.WindowHeight).
@@ -23,7 +23,7 @@ func (m MainModel) View() string {
 		return wrapper.Render(lipgloss.JoinVertical(
 			lipgloss.Center,
 			"Terminal size is too small",
-			fmt.Sprintf("%v < 100 x %v < 32",
+			fmt.Sprintf("%v < 75x %v < 32",
 				lipgloss.NewStyle().Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.WindowWidth)),
 				lipgloss.NewStyle().Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.WindowHeight)),
 			),
@@ -187,12 +187,12 @@ func body(m MainModel) string {
 			} else {
 				responseTabs = append(responseTabs, zone.Mark("responseHeaders", lipgloss.NewStyle().Padding(0, 1).Render("Headers")))
 			}
-		case 2:
-			if m.ResponseModel.FocusedTab == response.Cookies {
-				responseTabs = append(responseTabs, zone.Mark("responseCookies", focusedStyle.Render("Cookies")))
-			} else {
-				responseTabs = append(responseTabs, zone.Mark("responseCookies", lipgloss.NewStyle().Padding(0, 1).Render("Cookies")))
-			}
+			// case 2:
+			// 	if m.ResponseModel.FocusedTab == response.Cookies {
+			// 		responseTabs = append(responseTabs, zone.Mark("responseCookies", focusedStyle.Render("Cookies")))
+			// 	} else {
+			// 		responseTabs = append(responseTabs, zone.Mark("responseCookies", lipgloss.NewStyle().Padding(0, 1).Render("Cookies")))
+			// 	}
 		}
 	}
 

@@ -1,18 +1,16 @@
-package main
+package restui
 
 import (
 	"github.com/arfadmuzali/restui/internal/app"
 	tea "github.com/charmbracelet/bubbletea"
 	zone "github.com/lrstanley/bubblezone"
-	"log"
 )
 
-func main() {
+func Execute() error {
 	zone.NewGlobal()
 	defer zone.Close()
 	p := app.InitModel()
 	_, err := tea.NewProgram(p, tea.WithAltScreen(), tea.WithMouseCellMotion()).Run()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+
+	return err
 }
