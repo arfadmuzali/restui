@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/arfadmuzali/restui/internal/config"
 	"github.com/arfadmuzali/restui/internal/request"
 	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/atotto/clipboard"
@@ -39,6 +40,13 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.WindowHeight = msg.Height
 
 	case response.IsLoadingMsg:
+		// Add suggestion
+
+		config.AddSuggestion(m.UrlModel.UrlInput.Value())
+		suggestions, err := config.GetSuggestions()
+		if err == nil {
+			m.UrlModel.UrlInput.SetSuggestions(suggestions)
+		}
 		return m, m.HandleHttpRequest
 	case tea.MouseMsg:
 		if msg.Button == tea.MouseButtonLeft && msg.Action == tea.MouseActionRelease {
