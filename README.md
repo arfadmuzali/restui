@@ -21,6 +21,32 @@ cd restui
 go build -o restui
 # Move ./restui file into your bin
 ```
+
+## Uninstall
+
+By default RESTUI make a config directory inside your machine, so if you want to uninstall RESTUI you have to delete the configuratin too
+
+```bash
+# For Linux
+$HOME/.config/restui/
+
+# For Windows
+C:\Users\<USERNAME>\AppData\Roaming\restui\
+
+# For Mac
+/Users/<USERNAME>/Library/Application Support/restui/
+```
+then remove the RESTUI application here
+
+```bash
+# For Linux and Mac
+$HOME/go/bin
+
+# For Windows
+C:\Users\<USERNAME>\go\bin
+```
+
+
 ## Next Features
 
 Here is what i am planning to:
