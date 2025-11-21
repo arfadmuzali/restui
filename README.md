@@ -7,7 +7,7 @@ RESTUI is a Terminal User Interface API client designed for testing HTTP request
 ## Installation
 
 ### Requirements
-- Latest Go-lang version if posible
+- Latest [Go-lang](https://go.dev/doc/install) version if posible
 
 ### Using Go Install
 ```bash
@@ -51,7 +51,7 @@ C:\Users\<USERNAME>\go\bin
 
 Here is what i am planning to:
 
-- [ ] Suggestion when tping on URL
+- [x] Suggestion when tping on URL
 - [ ] Error pop-up
 - [ ] Cookies section
 - [ ] Websocket
