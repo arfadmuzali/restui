@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/arfadmuzali/restui/internal/help"
 	"github.com/arfadmuzali/restui/internal/hint"
 	"github.com/arfadmuzali/restui/internal/method"
 	"github.com/arfadmuzali/restui/internal/request"
@@ -30,6 +31,7 @@ type MainModel struct {
 	MethodModel   method.MethodModel
 	ResponseModel response.ResponseModel
 	RequestModel  request.RequestModel
+	HelpModel     help.HelpModel
 }
 
 func InitModel() MainModel {
@@ -44,25 +46,19 @@ func InitModel() MainModel {
 		MethodModel:   method.New(),
 		ResponseModel: response.New(),
 		RequestModel:  request.New(),
+		HelpModel:     help.New(),
 		spinner:       s,
 	}
 
 	return model
 }
 
-func (m MainModel) BlurAllInput(exeptions ...string) MainModel {
-	exs := make(map[string]bool, len(exeptions))
-
-	for _, value := range exeptions {
-		exs[value] = true
-	}
-
-	if !exs["url"] {
-		m.UrlModel.UrlInput.Blur()
-	} else if !exs["requestBody"] {
-		m.RequestModel.TextArea.Blur()
-	}
-
+func (m MainModel) BlurAll() MainModel {
+	m.UrlModel.UrlInput.Blur()
+	m.RequestModel.TextArea.Blur()
+	m.RequestModel.ValueInput.Blur()
+	m.RequestModel.KeyInput.Blur()
+	m.RequestModel.Hovered = false
 	return m
 }
 

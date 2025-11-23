@@ -23,7 +23,7 @@ func (m MainModel) View() string {
 		return wrapper.Render(lipgloss.JoinVertical(
 			lipgloss.Center,
 			"Terminal size is too small",
-			fmt.Sprintf("%v < 75x %v < 32",
+			fmt.Sprintf("%v < 75 x %v < 32",
 				lipgloss.NewStyle().Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.WindowWidth)),
 				lipgloss.NewStyle().Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.WindowHeight)),
 			),
@@ -51,6 +51,8 @@ func (m MainModel) View() string {
 
 	if m.MethodModel.OverlayActive {
 		return zone.Scan(Render(layout, m.MethodModel.View()))
+	} else if m.HelpModel.OverlayActive {
+		return zone.Scan(Render(layout, m.HelpModel.View()))
 	}
 
 	return zone.Scan(layout)
@@ -143,6 +145,7 @@ func body(m MainModel) string {
 		responseHoveredColor = utils.BlueColor
 	}
 
+	// minus 1 for the tabs
 	left, right := utils.PrintHorizontalBorder(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1, m.ResponseModel.Viewport.TotalLineCount(), m.ResponseModel.Viewport.ScrollPercent())
 	top, bottom := utils.PrintVerticalBorder(bodyWidth*60/100 + addon)
 
@@ -161,6 +164,7 @@ func body(m MainModel) string {
 	var responseContent string
 	if m.ResponseModel.IsLoading {
 		responseContent = lipgloss.NewStyle().
+			// minus 1 for the tabs
 			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
 			Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()+addon).
 			Align(lipgloss.Center, lipgloss.Center).
@@ -169,8 +173,8 @@ func body(m MainModel) string {
 	} else {
 		responseContent = lipgloss.NewStyle().Render(zone.Mark("response", content))
 	}
-	var responseTabs []string
 
+	var responseTabs []string
 	for i := 0; i < 3; i++ {
 		focusedStyle := lipgloss.NewStyle().Padding(0, 1).Foreground(lipgloss.Color(utils.BlueColor))
 

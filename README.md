@@ -1,6 +1,6 @@
 # RESTUI
 
-RESTUI is a Terminal User Interface API client designed for testing HTTP requests directly into your terminal.
+RESTUI is a Terminal User Interface API client designed for testing HTTP requests directly into your terminal. Look at [GUIDE.md](GUIDE.md) for shortcuts and keybinds
 
 ![Preview](assets/preview.png)
 
