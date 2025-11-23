@@ -22,6 +22,8 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 				m.helpWindowHeight-utils.BoxStyle.GetVerticalBorderSize(),
 			)
 
+			m.ViewportReady = true
+
 			rawGuide := `# Common Keybinds
 - **ctrl+c**: Exit
 - **ESC**: Close modal/popup
@@ -48,20 +50,23 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 # Tips & Tricks
 - if you want to select and copy text, use copy-mode/selection-mode in your terminal level. For an example Kitty Terminal Emulator has ctrl+shift+h to enter copy-mode`
 
-			r, _ := glamour.NewTermRenderer(
-				glamour.WithStylePath("dark"),
-				glamour.WithWordWrap(m.helpWindowWidth-utils.BoxStyle.GetHorizontalBorderSize()),
+			r, glamourErr := glamour.NewTermRenderer(
+				glamour.WithWordWrap(m.helpWindowWidth - utils.BoxStyle.GetHorizontalBorderSize()),
 			)
-
-			guide, glamourErr := r.Render(rawGuide)
 
 			if glamourErr != nil {
 				m.Viewport.SetContent("Failed to render guide " + glamourErr.Error())
+				return m, nil
+			}
+
+			guide, err := r.Render(rawGuide)
+
+			if err != nil {
+				m.Viewport.SetContent("Failed to render guide " + err.Error())
 			} else {
 				m.Viewport.SetContent(string(guide))
 			}
 
-			m.ViewportReady = true
 		} else {
 			m.Viewport.Width = m.helpWindowWidth - utils.BoxStyle.GetHorizontalBorderSize()
 			m.Viewport.Height = m.helpWindowHeight - utils.BoldStyle.GetVerticalBorderSize()
