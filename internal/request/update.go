@@ -39,10 +39,16 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
+
+		//BUG: i dont know why but if i add 1 to response section when window width it wont error
+		bugAddon := 0
+		if msg.Width%10 == 5 {
+			bugAddon = 1
+		}
 		// minus 1 for the tabs
 		m.RequestHeight = msg.Height*90/100 - utils.BoxStyle.GetVerticalBorderSize() - 1
 
-		m.RequestWidth = msg.Width*40/100 - utils.BoxStyle.GetHorizontalBorderSize()
+		m.RequestWidth = msg.Width*40/100 - utils.BoxStyle.GetHorizontalBorderSize() - bugAddon
 
 		m.TextArea.SetWidth(m.RequestWidth)
 		m.TextArea.SetHeight(m.RequestHeight)

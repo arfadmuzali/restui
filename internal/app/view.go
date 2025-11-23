@@ -117,12 +117,18 @@ func body(m MainModel) string {
 		}
 	}
 
+	//BUG: i dont know why but if i add 1 to response section when window width it wont error
+	bugAddon := 0
+	if m.WindowWidth%10 == 5 {
+		bugAddon = 1
+	}
+
 	requestSection := lipgloss.JoinVertical(
 		lipgloss.Left,
 		lipgloss.NewStyle().Align(lipgloss.Left).Render(strings.Join(requestTabs, "|")),
 		lipgloss.NewStyle().
 			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
-			Width(bodyWidth*40/100-utils.BoxStyle.GetHorizontalBorderSize()).
+			Width(bodyWidth*40/100-utils.BoxStyle.GetHorizontalBorderSize()-bugAddon).
 			BorderForeground(lipgloss.Color(requestHoveredColor)).
 			Border(lipgloss.RoundedBorder()).Render(
 			// fmt.Sprintf("%.2f, responseheight: %v, lencontent: %v",
@@ -131,9 +137,9 @@ func body(m MainModel) string {
 			// m.ResponseModel.Viewport.TotalLineCount(),
 			m.RequestModel.View(),
 		))
+	// requestSection = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Width(bodyWidth*40/100 - 3).Height(bodyHeight - 3).Render("")
 
 	// Response Section (right section)
-	responseView := m.ResponseModel.View()
 
 	var addon int
 	if m.WindowWidth%10 != 0 {
@@ -155,7 +161,7 @@ func body(m MainModel) string {
 		lipgloss.JoinHorizontal(
 			lipgloss.Top,
 			lipgloss.NewStyle().Foreground(lipgloss.Color(responseHoveredColor)).Render(left),
-			responseView,
+			m.ResponseModel.View(),
 			lipgloss.NewStyle().Foreground(lipgloss.Color(responseHoveredColor)).Render(right),
 		),
 		lipgloss.NewStyle().Foreground(lipgloss.Color(responseHoveredColor)).Render(bottom),
