@@ -64,6 +64,29 @@ func New() RequestModel {
 	keyInput := textinput.New()
 	keyInput.Prompt = ""
 	keyInput.Placeholder = "Enter key"
+	keyInput.ShowSuggestions = true
+	keyInput.SetSuggestions([]string{
+		"Accept",
+		"Accept-Language",
+		"Accept-Encoding",
+		"User-Agent",
+		"Host",
+		"Connection",
+		"Authorization",
+		"Cookie",
+		"X-CSRF-Token",
+		"X-API-Key",
+		"Content-Type",
+		"Content-Length",
+		"Origin",
+		"Referer",
+		"Access-Control-Request-Method",
+		"Access-Control-Request-Headers",
+		"If-Modified-Since",
+		"If-None-Match",
+		"Range",
+		"X-Requested-With",
+	})
 
 	valueInput := textinput.New()
 	valueInput.Prompt = ""

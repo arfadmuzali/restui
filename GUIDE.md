@@ -17,6 +17,7 @@
     - **ESC/enter**: Close the method modal/popup
 - **ctrl+h**: Go to request header
     - **tab**: Toggle between header key and header value
+        - **enter**: Add header
     - **ctrl+k/up**: Navigate header table up
     - **ctrl+j/down**: Navigate header table down
     - **ctrl+d**: Delete header

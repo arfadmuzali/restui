@@ -12,7 +12,7 @@ func (m UrlModel) Init() tea.Cmd {
 func (m UrlModel) Update(msg tea.Msg) (UrlModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.UrlInput.Width = msg.Width * 75 / 100
+		m.UrlInput.Width = msg.Width * 76 / 100
 	case tea.MouseMsg:
 		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft {
 			if zone.Get("url").InBounds(msg) {

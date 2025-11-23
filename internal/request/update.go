@@ -47,12 +47,15 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 		m.TextArea.SetWidth(m.RequestWidth)
 		m.TextArea.SetHeight(m.RequestHeight)
 
-		m.TableHeaders.SetColumns([]table.Column{{Title: "Key", Width: m.RequestWidth * 50 / 100}, {Title: "Value", Width: m.RequestWidth * 50 / 100}})
+		m.TableHeaders.SetColumns([]table.Column{
+			{Title: "Key", Width: m.RequestWidth * 50 / 100},
+			{Title: "Value", Width: m.RequestWidth * 50 / 100},
+		})
 		m.TableHeaders.SetHeight(m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1)
 
 		m.ValueInput.Width = m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1
-		m.KeyInput.Width = m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1
 
+		m.KeyInput.Width = m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1
 		if !m.ViewportReady {
 			m.Viewport = viewport.New(m.RequestWidth, m.RequestHeight)
 			m.ViewportReady = true

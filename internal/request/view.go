@@ -19,10 +19,10 @@ func (m RequestModel) View() string {
 			lipgloss.JoinHorizontal(
 				lipgloss.Top,
 				zone.Mark("keyInputHeader",
-					lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Render(m.KeyInput.View()),
+					lipgloss.NewStyle().Width(m.RequestWidth*50/100-2).Border(lipgloss.RoundedBorder()).Render(m.KeyInput.View()),
 				),
 				zone.Mark("valueInputHeader",
-					lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Render(m.ValueInput.View()),
+					lipgloss.NewStyle().Width(m.RequestWidth*50/100-2).Border(lipgloss.RoundedBorder()).Render(m.ValueInput.View()),
 				),
 			),
 		)
