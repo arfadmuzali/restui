@@ -69,7 +69,7 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 
 		} else {
 			m.Viewport.Width = m.helpWindowWidth - utils.BoxStyle.GetHorizontalBorderSize()
-			m.Viewport.Height = m.helpWindowHeight - utils.BoldStyle.GetVerticalBorderSize()
+			m.Viewport.Height = m.helpWindowHeight - utils.BoxStyle.GetVerticalBorderSize()
 		}
 		return m, nil
 	case tea.KeyMsg:
@@ -80,7 +80,9 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 
 	}
 	var cmd tea.Cmd
-	m.Viewport, cmd = m.Viewport.Update(msg)
+	if m.OverlayActive && m.ViewportReady {
+		m.Viewport, cmd = m.Viewport.Update(msg)
+	}
 
 	return m, cmd
 }
