@@ -26,11 +26,13 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	}
 
-	m.ValueInput, cmd = m.ValueInput.Update(msg)
-	cmds = append(cmds, cmd)
+	if m.FocusedTab == Headers && m.Hovered {
+		m.ValueInput, cmd = m.ValueInput.Update(msg)
+		cmds = append(cmds, cmd)
 
-	m.KeyInput, cmd = m.KeyInput.Update(msg)
-	cmds = append(cmds, cmd)
+		m.KeyInput, cmd = m.KeyInput.Update(msg)
+		cmds = append(cmds, cmd)
+	}
 
 	m.Viewport, cmd = m.Viewport.Update(msg)
 	cmds = append(cmds, cmd)
@@ -71,12 +73,14 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 
 		switch msg.String() {
 		case "tab":
-			if m.ValueInput.Focused() {
-				m.ValueInput.Blur()
-				m.KeyInput.Focus()
-			} else {
-				m.ValueInput.Focus()
-				m.KeyInput.Blur()
+			if m.FocusedTab == Headers && m.Hovered {
+				if m.ValueInput.Focused() {
+					m.ValueInput.Blur()
+					m.KeyInput.Focus()
+				} else {
+					m.ValueInput.Focus()
+					m.KeyInput.Blur()
+				}
 			}
 			return m, nil
 		case "ctrl+d":
