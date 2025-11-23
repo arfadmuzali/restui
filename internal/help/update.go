@@ -29,6 +29,7 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 - **ESC**: Close modal/popup
 - **alt+enter**: Send request
 - **F1**: Help
+
 # Request Keybinds
 - **ctrl+l**: Go to url
 - **ctrl+b**: Go to request body
@@ -47,11 +48,13 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
     - **ctrl+k/up**: Navigate header table up
     - **ctrl+j/down**: Navigate header table down
     - **ctrl+d**: Delete header
+
 # Tips & Tricks
 - if you want to select and copy text, use copy-mode/selection-mode in your terminal level. For an example Kitty Terminal Emulator has ctrl+shift+h to enter copy-mode`
 
 			r, glamourErr := glamour.NewTermRenderer(
-				glamour.WithWordWrap(m.helpWindowWidth - utils.BoxStyle.GetHorizontalBorderSize()),
+				glamour.WithStylePath("dark"),
+				glamour.WithWordWrap(m.helpWindowWidth-utils.BoxStyle.GetHorizontalBorderSize()),
 			)
 
 			if glamourErr != nil {
