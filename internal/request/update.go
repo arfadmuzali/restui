@@ -112,7 +112,6 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 					tableHeadersValue = append(tableHeadersValue, table.Row{h.Key, h.Value})
 				}
 				// check if its the end of headers
-				// WARN: i don't know how this work
 				if idxSelectedRowKey == len(m.Headers) {
 					m.TableHeaders.SetCursor(0)
 				}
