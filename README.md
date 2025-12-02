@@ -52,7 +52,7 @@ C:\Users\<USERNAME>\go\bin
 Here is what i am planning to:
 
 - [x] Suggestion when tping on URL
-- [ ] Error pop-up
+- [ ] Buffers/Tabs manager
 - [ ] Cookies section
 - [ ] Websocket
 

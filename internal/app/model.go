@@ -86,7 +86,7 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 		headers[header.Key] = header.Value
 	}
 
-	url := m.UrlModel.UrlInput.Value()
+	url := strings.TrimSpace(m.UrlModel.UrlInput.Value())
 
 	if url == "" {
 		return nil
