@@ -27,11 +27,64 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 	}
 
 	if m.FocusedTab == Headers && m.Hovered {
+		m.KeyInput, cmd = m.KeyInput.Update(msg)
+		cmds = append(cmds, cmd)
+
+		if strings.EqualFold(m.KeyInput.Value(), "Content-Type") {
+			m.ValueInput.SetSuggestions([]string{
+				"text/plain",
+				"text/html",
+				"text/css",
+				"text/javascript",
+				"text/csv",
+				"text/xml",
+
+				"application/json",
+				"application/xml",
+				"application/x-www-form-urlencoded",
+				"application/octet-stream",
+				"application/pdf",
+				"application/zip",
+				"application/gzip",
+				"application/vnd.ms-excel",
+				"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				"application/graphql",
+				"application/ld+json",
+
+				"image/png",
+				"image/jpeg",
+				"image/gif",
+				"image/webp",
+				"image/svg+xml",
+				"image/avif",
+
+				"audio/mpeg",
+				"audio/ogg",
+				"audio/wav",
+				"audio/webm",
+
+				"video/mp4",
+				"video/webm",
+				"video/ogg",
+
+				"multipart/form-data",
+				"multipart/mixed",
+				"multipart/alternative",
+				"multipart/related",
+
+				"font/ttf",
+				"font/otf",
+				"font/woff",
+				"font/woff2",
+			})
+		} else {
+			// m.ValueInput.SetSuggestions([]string{})
+		}
+
 		m.ValueInput, cmd = m.ValueInput.Update(msg)
 		cmds = append(cmds, cmd)
 
-		m.KeyInput, cmd = m.KeyInput.Update(msg)
-		cmds = append(cmds, cmd)
 	}
 
 	m.Viewport, cmd = m.Viewport.Update(msg)

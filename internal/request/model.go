@@ -91,6 +91,7 @@ func New() RequestModel {
 	valueInput := textinput.New()
 	valueInput.Prompt = ""
 	valueInput.Placeholder = "Enter value"
+	valueInput.ShowSuggestions = true
 
 	headers := []Header{
 		{Key: "User-Agent", Value: "RESTUI/0.0.1"},
