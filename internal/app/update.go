@@ -24,6 +24,44 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 		m.WindowHeight = msg.Height
 	case tea.KeyMsg:
 		switch msg.String() {
+		case "ctrl+n":
+			buffer := CreateNewBuffer()
+
+			m.IndexBuffers[buffer.Id] = len(m.Buffers)
+			m.Buffers = append(m.Buffers, buffer)
+
+			m = m.ChangeBuffer(buffer.Id)
+
+			return m, tea.WindowSize()
+		case "ctrl+t":
+			println("")
+			for _, v := range m.Buffers {
+				print(v.Id + " End\n")
+			}
+			println("Active buffer", m.ActiveBufferId)
+			return m, nil
+		case "ctrl+pgup":
+			index := m.IndexBuffers[m.ActiveBufferId]
+			if index < len(m.Buffers)-1 {
+				m = m.ChangeBuffer(m.Buffers[index+1].Id)
+			}
+
+			if index == len(m.Buffers)-1 {
+				m = m.ChangeBuffer(m.Buffers[0].Id)
+			}
+			return m, nil
+		case "ctrl+pgdown":
+			index := m.IndexBuffers[m.ActiveBufferId]
+			if index > 0 {
+				m = m.ChangeBuffer(m.Buffers[index-1].Id)
+			}
+			if index == 0 {
+				m = m.ChangeBuffer(m.Buffers[len(m.Buffers)-1].Id)
+			}
+			return m, nil
+		case "ctrl+x":
+			m, cmd := m.DeleteBuffer(m.ActiveBufferId)
+			return m, cmd
 		case "ctrl+c":
 			return m, tea.Quit
 		case "ctrl+o":
@@ -40,7 +78,6 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 }
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 

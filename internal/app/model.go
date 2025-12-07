@@ -15,17 +15,12 @@ import (
 	"github.com/arfadmuzali/restui/internal/request"
 	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/arfadmuzali/restui/internal/url"
-	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
-type MainModel struct {
-	WindowWidth  int
-	WindowHeight int
-	spinner      spinner.Model
-
+type Model struct {
+	spinner       spinner.Model
 	UrlModel      url.UrlModel
 	HintModel     hint.HintModel
 	MethodModel   method.MethodModel
@@ -34,23 +29,32 @@ type MainModel struct {
 	HelpModel     help.HelpModel
 }
 
+type MainModel struct {
+	WindowWidth    int
+	WindowHeight   int
+	ActiveBufferId string
+	Model
+
+	Buffers      []Buffer
+	IndexBuffers map[string]int
+}
+
 func InitModel() MainModel {
+	buffer := CreateNewBuffer()
+	buffer.Id = "first"
 
-	s := spinner.New()
-	s.Spinner = spinner.Points
-	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color(utils.BlueColor))
-
-	model := MainModel{
-		UrlModel:      url.New(),
-		HintModel:     hint.New(),
-		MethodModel:   method.New(),
-		ResponseModel: response.New(),
-		RequestModel:  request.New(),
-		HelpModel:     help.New(),
-		spinner:       s,
+	mainModel := MainModel{
+		ActiveBufferId: buffer.Id,
+		Model:          buffer.Model,
+		Buffers: []Buffer{
+			buffer,
+		},
+		IndexBuffers: map[string]int{
+			buffer.Id: 0,
+		},
 	}
 
-	return model
+	return mainModel
 }
 
 func (m MainModel) BlurAll() MainModel {
