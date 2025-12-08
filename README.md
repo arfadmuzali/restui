@@ -1,6 +1,6 @@
 # RESTUI
 
-RESTUI is a Terminal User Interface API client designed for testing HTTP requests directly into your terminal. Look at [GUIDE.md](GUIDE.md) for shortcuts and keybinds
+RESTUI is a Terminal User Interface API client designed for testing HTTP requests directly into your terminal.
 
 ![Preview](assets/preview.png)
 
@@ -24,7 +24,7 @@ go build -o restui
 
 ## Uninstall
 
-By default RESTUI make a config directory inside your machine, so if you want to uninstall RESTUI you have to delete the configuratin too
+By default RESTUI make a config directory inside your machine, so if you want to uninstall RESTUI make sure to delete the configuration
 
 ```bash
 # For Linux
@@ -52,7 +52,7 @@ C:\Users\<USERNAME>\go\bin
 Here is what i am planning to:
 
 - [x] Suggestion when tping on URL
-- [ ] Buffers/Tabs manager
+- [x] Buffers/Tabs manager
 - [ ] Cookies section
 - [ ] Websocket
 

@@ -5,6 +5,7 @@
 *.so
 *.dylib
 *.test
+guide.md
 
 # Output of the go build command
 /bin/

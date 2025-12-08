@@ -24,7 +24,8 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 
 			m.ViewportReady = true
 
-			rawGuide := `# Common Keybinds
+			rawGuide := `
+# Common Keybinds
 - **ctrl+c**: Exit
 - **ESC**: Close modal/popup
 - **alt+enter**: Send request
@@ -50,7 +51,8 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
     - **ctrl+d**: Delete header
 
 # Tips & Tricks
-- if you want to select and copy text, use copy-mode/selection-mode in your terminal level. For an example Kitty Terminal Emulator has ctrl+shift+h to enter copy-mode`
+- if you want to select and copy text, use copy-mode/selection-mode in your terminal level. For an example Kitty Terminal Emulator has ctrl+shift+h to enter copy-mode
+`
 
 			r, glamourErr := glamour.NewTermRenderer(
 				glamour.WithStylePath("dark"),

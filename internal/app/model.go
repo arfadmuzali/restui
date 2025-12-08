@@ -30,18 +30,23 @@ type Model struct {
 }
 
 type MainModel struct {
-	WindowWidth    int
-	WindowHeight   int
-	ActiveBufferId string
-	Model
+	WindowWidth  int
+	WindowHeight int
 
-	Buffers      []Buffer
-	IndexBuffers map[string]int
+	Model
+	ActiveBufferId   string
+	Buffers          []Buffer
+	IndexBuffers     map[string]int
+	BufferModalModel BufferModalModel
 }
 
 func InitModel() MainModel {
 	buffer := CreateNewBuffer()
 	buffer.Id = "first"
+
+	bufferModalModel := BufferModalModel{
+		OverlayActive: false,
+	}
 
 	mainModel := MainModel{
 		ActiveBufferId: buffer.Id,
@@ -52,6 +57,7 @@ func InitModel() MainModel {
 		IndexBuffers: map[string]int{
 			buffer.Id: 0,
 		},
+		BufferModalModel: bufferModalModel,
 	}
 
 	return mainModel

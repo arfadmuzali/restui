@@ -53,6 +53,10 @@ func (m MainModel) View() string {
 		return zone.Scan(Render(layout, m.MethodModel.View()))
 	} else if m.HelpModel.OverlayActive {
 		return zone.Scan(Render(layout, m.HelpModel.View()))
+	} else if m.BufferModalModel.OverlayActive {
+		OverlayModal := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Render(m.BufferModalModel.Viewport.View())
+
+		return zone.Scan(Render(layout, OverlayModal))
 	}
 
 	return zone.Scan(layout)

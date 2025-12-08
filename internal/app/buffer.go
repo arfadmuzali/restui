@@ -9,6 +9,7 @@ import (
 	"github.com/arfadmuzali/restui/internal/url"
 	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/google/uuid"
@@ -17,6 +18,53 @@ import (
 type Buffer struct {
 	Id    string
 	Model Model
+}
+
+type BufferModalModel struct {
+	OverlayActive bool
+	Viewport      viewport.Model
+	ViewportReady bool
+	BufferHovered string
+}
+
+func (m MainModel) BufferNavigation(msg tea.Msg) (MainModel, tea.Cmd) {
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		index, ok := m.IndexBuffers[m.BufferModalModel.BufferHovered]
+		switch msg.String() {
+		case "ctrl+d":
+			var cmd tea.Cmd
+			if ok {
+				m, cmd = m.DeleteBuffer(m.BufferModalModel.BufferHovered)
+				m.BufferModalModel.BufferHovered = m.ActiveBufferId
+			}
+			return m, cmd
+		case "up", "k":
+			if index >= 0 {
+				if index == 0 {
+					index = len(m.Buffers)
+				}
+				index = index - 1
+			}
+			m.BufferModalModel.BufferHovered = m.Buffers[index].Id
+		case "down", "j":
+			if index <= len(m.Buffers)-1 {
+				if index == len(m.Buffers)-1 {
+					index = -1
+				}
+				index = index + 1
+			}
+			m.BufferModalModel.BufferHovered = m.Buffers[index].Id
+		case "enter":
+			if ok {
+				m = m.ChangeBuffer(m.BufferModalModel.BufferHovered)
+			}
+			m.BufferModalModel.OverlayActive = false
+			return m, nil
+		}
+	}
+	return m, nil
 }
 
 // save old buffer and change the active buffer into new buffer

@@ -6,34 +6,36 @@ import (
 	zone "github.com/lrstanley/bubblezone"
 )
 
+var GetStyle = lipgloss.
+	NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color(utils.GreenColor))
+var PatchStyle = lipgloss.
+	NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color(utils.PurpleColor))
+var PostStyle = lipgloss.
+	NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color(utils.OrangeColor))
+var PutStyle = lipgloss.
+	NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color(utils.BlueColor))
+var DeleteStyle = lipgloss.
+	NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color(utils.RedColor))
+
 func (m MethodModel) View() string {
 
 	componentWidth := m.windowWidth * 20 / 100
 
-	var getComponent = lipgloss.NewStyle().
-		Bold(true).
-		Padding(1, 1).
-		Foreground(lipgloss.Color(utils.GreenColor))
-	var patchComponent = lipgloss.
-		NewStyle().
-		Bold(true).
-		Padding(1, 1).
-		Foreground(lipgloss.Color(utils.PurpleColor))
-	var postComponent = lipgloss.
-		NewStyle().
-		Bold(true).
-		Padding(1, 1).
-		Foreground(lipgloss.Color(utils.OrangeColor))
-	var putComponent = lipgloss.
-		NewStyle().
-		Bold(true).
-		Padding(1, 1).
-		Foreground(lipgloss.Color(utils.BlueColor))
-	var deleteComponent = lipgloss.
-		NewStyle().
-		Bold(true).
-		Padding(1, 1).
-		Foreground(lipgloss.Color(utils.RedColor))
+	var getComponent = GetStyle.Padding(1, 1)
+	var patchComponent = PatchStyle.Padding(1, 1)
+	var postComponent = PostStyle.Padding(1, 1)
+	var putComponent = PutStyle.Padding(1, 1)
+	var deleteComponent = DeleteStyle.Padding(1, 1)
 
 	switch m.ActiveState.String() {
 	case "GET":
@@ -41,7 +43,6 @@ func (m MethodModel) View() string {
 			Bold(true).
 			Padding(1, 1).
 			Foreground(lipgloss.Color(utils.WhiteColor))
-
 	case "POST":
 		postComponent = lipgloss.NewStyle().
 			Bold(true).

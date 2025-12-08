@@ -2,30 +2,59 @@ package app
 
 import (
 	"github.com/arfadmuzali/restui/internal/config"
+	methodModel "github.com/arfadmuzali/restui/internal/method"
 	"github.com/arfadmuzali/restui/internal/request"
 	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 	zone "github.com/lrstanley/bubblezone"
 )
 
 func (m MainModel) Init() tea.Cmd {
-	return nil
+
+	return tea.Batch(
+		m.RequestModel.Init(),
+		m.ResponseModel.Init(),
+		m.HelpModel.Init(),
+		m.MethodModel.Init(),
+		m.UrlModel.Init(),
+		m.HintModel.Init(),
+	)
 }
 
 // global key msg does't affected by anything
 func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
+	var cmds []tea.Cmd
 
+	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.WindowWidth = msg.Width
 		m.WindowHeight = msg.Height
+
+		if !m.BufferModalModel.ViewportReady {
+			m.BufferModalModel.ViewportReady = true
+			m.BufferModalModel.Viewport = viewport.New(
+				m.WindowWidth*50/100-utils.BoxStyle.GetHorizontalBorderSize(),
+				m.WindowHeight*85/100-utils.BoxStyle.GetHorizontalBorderSize(),
+			)
+		} else {
+			m.BufferModalModel.Viewport.Width = m.WindowWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize()
+			m.BufferModalModel.Viewport.Height = m.WindowHeight*85/100 - utils.BoxStyle.GetVerticalBorderSize()
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+n":
 			buffer := CreateNewBuffer()
+			if m.BufferModalModel.OverlayActive {
+				return m, tea.WindowSize()
+			}
 
 			m.IndexBuffers[buffer.Id] = len(m.Buffers)
 			m.Buffers = append(m.Buffers, buffer)
@@ -33,13 +62,6 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 			m = m.ChangeBuffer(buffer.Id)
 
 			return m, tea.WindowSize()
-		case "ctrl+t":
-			println("")
-			for _, v := range m.Buffers {
-				print(v.Id + " End\n")
-			}
-			println("Active buffer", m.ActiveBufferId)
-			return m, nil
 		case "ctrl+pgup":
 			index := m.IndexBuffers[m.ActiveBufferId]
 			if index < len(m.Buffers)-1 {
@@ -49,7 +71,7 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 			if index == len(m.Buffers)-1 {
 				m = m.ChangeBuffer(m.Buffers[0].Id)
 			}
-			return m, nil
+			cmds = append(cmds, tea.WindowSize())
 		case "ctrl+pgdown":
 			index := m.IndexBuffers[m.ActiveBufferId]
 			if index > 0 {
@@ -58,10 +80,13 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 			if index == 0 {
 				m = m.ChangeBuffer(m.Buffers[len(m.Buffers)-1].Id)
 			}
-			return m, nil
+
+			cmds = append(cmds, tea.WindowSize())
 		case "ctrl+x":
-			m, cmd := m.DeleteBuffer(m.ActiveBufferId)
-			return m, cmd
+			m, cmd = m.DeleteBuffer(m.ActiveBufferId)
+
+			cmds = append(cmds, cmd)
+
 		case "ctrl+c":
 			return m, tea.Quit
 		case "ctrl+o":
@@ -72,9 +97,74 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 			m.HelpModel.OverlayActive = !m.HelpModel.OverlayActive
 			m = m.BlurAll()
 			return m, nil
+		case "esc":
+			m.BufferModalModel.OverlayActive = false
+		case "ctrl+t":
+			m.BufferModalModel.OverlayActive = !m.BufferModalModel.OverlayActive
+			m.BufferModalModel.BufferHovered = m.ActiveBufferId
+			m = m.BlurAll()
 		}
 	}
-	return m, nil
+
+	if m.BufferModalModel.OverlayActive && m.BufferModalModel.ViewportReady {
+		m, cmd = m.BufferNavigation(msg)
+		cmds = append(cmds, cmd)
+
+		buffersComponent := []string{}
+
+		bufferStyle := lipgloss.NewStyle().
+			MaxWidth(m.WindowWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize()).
+			Width(m.WindowWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize())
+
+		for _, buffer := range m.Buffers {
+			var (
+				isActive    = buffer.Id == m.ActiveBufferId
+				isHovered   = buffer.Id == m.BufferModalModel.BufferHovered
+				tempStyle   = bufferStyle
+				method      string
+				url         string
+				methodStyle lipgloss.Style
+			)
+
+			if isActive {
+				method = m.MethodModel.ActiveState.String()
+				url = m.Model.UrlModel.UrlInput.Value()
+			} else {
+				method = buffer.Model.MethodModel.ActiveState.String()
+				url = buffer.Model.UrlModel.UrlInput.Value()
+			}
+
+			switch method {
+			case "GET":
+				methodStyle = methodModel.GetStyle
+			case "POST":
+				methodStyle = methodModel.PostStyle
+			case "PUT":
+				methodStyle = methodModel.PutStyle
+			case "PATCH":
+				methodStyle = methodModel.PatchStyle
+			case "DELETE":
+				methodStyle = methodModel.DeleteStyle
+			}
+
+			if isHovered {
+				tempStyle = tempStyle.Background(lipgloss.Color(utils.GrayColor))
+				methodStyle = methodStyle.Background(lipgloss.Color(utils.GrayColor))
+			}
+
+			buffersComponent = append(buffersComponent, lipgloss.JoinHorizontal(lipgloss.Left,
+				methodStyle.Render(method+" "),
+				tempStyle.Render(ansi.Truncate(url, m.WindowWidth*48/100, "")),
+			))
+		}
+
+		m.BufferModalModel.Viewport.SetContent(
+			lipgloss.JoinVertical(lipgloss.Left, buffersComponent...),
+		)
+		m.BufferModalModel.Viewport, cmd = m.BufferModalModel.Viewport.Update(msg)
+	}
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -90,7 +180,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.HelpModel, cmd = m.HelpModel.Update(msg)
 	cmds = append(cmds, cmd)
 
-	if m.MethodModel.OverlayActive || m.HelpModel.OverlayActive {
+	if m.MethodModel.OverlayActive || m.HelpModel.OverlayActive || m.BufferModalModel.OverlayActive {
 		return m, tea.Batch(cmds...)
 	}
 
