@@ -152,10 +152,11 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 				methodStyle = methodStyle.Background(lipgloss.Color(utils.GrayColor))
 			}
 
-			buffersComponent = append(buffersComponent, lipgloss.JoinHorizontal(lipgloss.Left,
+			buffersComponent = append(buffersComponent, zone.Mark(buffer.Id, lipgloss.JoinHorizontal(lipgloss.Left,
 				methodStyle.Render(method+" "),
 				tempStyle.Render(ansi.Truncate(url, m.WindowWidth*48/100, "")),
-			))
+			)),
+			)
 		}
 
 		m.BufferModalModel.Viewport.SetContent(
