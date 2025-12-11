@@ -6,10 +6,11 @@ RESTUI is a Terminal User Interface API client designed for testing HTTP request
 
 ## Installation
 
-### Requirements
-- Latest [Go-lang](https://go.dev/doc/install) version if posible
-
 ### Using Go Install
+ Minimum Requirements
+
+- [Go v1.22 or latest](https://go.dev/doc/install) 
+
 ```bash
 go install github.com/arfadmuzali/restui@latest
 ```

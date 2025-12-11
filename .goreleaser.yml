@@ -1,0 +1,37 @@
+project_name: restui
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: restui
+    main: .
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - format: tar.gz
+    replacements:
+      darwin: macOS
+    name_template: "restui_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+release:
+  github:
+    owner: arfadmuzali
+    name: restui
