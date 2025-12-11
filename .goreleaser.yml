@@ -7,6 +7,7 @@ before:
 builds:
   - id: restui
     main: .
+    binary: restui
     env:
       - CGO_ENABLED=0
     ldflags:
@@ -20,9 +21,8 @@ builds:
       - arm64
 
 archives:
-  - format: tar.gz
-    replacements:
-      darwin: macOS
+  - id: archive
+    format: tar.gz
     name_template: "restui_{{ .Os }}_{{ .Arch }}"
     files:
       - LICENSE
@@ -35,3 +35,19 @@ release:
   github:
     owner: arfadmuzali
     name: restui
+    draft: false
+    prerelease: false
+
+brews:
+  - name: restui
+    description: "API client in your terminal"
+    homepage: "https://github.com/arfadmuzali/restui"
+    tap:
+      owner: arfadmuzali
+      name: homebrew-restui
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    directory: Formula
+    install: |
+      bin.install "restui"
