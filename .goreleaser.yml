@@ -35,8 +35,6 @@ release:
   github:
     owner: arfadmuzali
     name: restui
-    draft: false
-    prerelease: false
 
 brews:
   - name: restui
