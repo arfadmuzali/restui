@@ -40,7 +40,7 @@ brews:
   - name: restui
     description: "API client in your terminal"
     homepage: "https://github.com/arfadmuzali/restui"
-    tap:
+    repository:
       owner: arfadmuzali
       name: homebrew-restui
     commit_author:
