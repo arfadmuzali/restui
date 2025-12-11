@@ -30,12 +30,13 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 - **ESC**: Close modal/popup
 - **alt+enter**: Send request
 - **F1**: Help
+
 # Request Keybinds
-- **ctrl+l**: Go to url
+- **ctrl+l**: Go to URL
 - **ctrl+b**: Go to request body
 - **ctrl+o**: Toggle method modal/popup
     - **k/up**: Navigate up in method modal/popup
-    - **j/down**: Navigate down  in method modal/popup
+    - **j/down**: Navigate down in method modal/popup
     - **g**: Switch to GET method
     - **p**: Switch to POST method
     - **u**: Switch to PUT method
@@ -48,21 +49,21 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
     - **ctrl+k/up**: Navigate header table up
     - **ctrl+j/down**: Navigate header table down
     - **ctrl+d**: Delete header
+
 # Buffer Management
-    - **ctrl+n**: New buffer
-    - **ctrl+x**: Delete active buffer
-    - **ctrl+pgup**: Move to next buffer
-    - **ctrl+pgdown**: Move to previous buffer
-    - **ctrl+x**: Delete active buffer
-    - **ctrl+t**: Toggle buffer modal/popup
-    	- **k/up**: Navigate up in buffer modal/popup
-    	- **j/down**: Navigate down  in buffer modal/popup
-        - **ctrl+d**: Delete selected buffer
-		- **enter**: Open selected buffer
-		- **ESC**: Close buffer modal/popup
+- **ctrl+n**: New buffer
+- **ctrl+x**: Delete active buffer
+- **ctrl+pgup**: Move to next buffer
+- **ctrl+pgdown**: Move to previous buffer
+- **ctrl+t**: Toggle buffer modal/popup
+    - **k/up**: Navigate up in buffer modal/popup
+    - **j/down**: Navigate down in buffer modal/popup
+    - **ctrl+d**: Delete selected buffer
+    - **enter**: Open selected buffer
+    - **ESC**: Close buffer modal/popup
+
 # Tips & Tricks
-- if you want to select and copy text, use copy-mode/selection-mode in your terminal level. For an example Kitty Terminal Emulator has ctrl+shift+h to enter copy-mode
-`
+- If you want to select and copy text, use copy-mode/selection-mode in your terminal level. For example, Kitty Terminal Emulator has ctrl+shift+h to enter copy-mode.`
 
 			r, glamourErr := glamour.NewTermRenderer(
 				glamour.WithStylePath("dark"),
