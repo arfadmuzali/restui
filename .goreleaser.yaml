@@ -12,8 +12,6 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate
-    - go generate ./...
 
 builds:
   - env:
@@ -45,6 +43,16 @@ changelog:
       - "^docs:"
       - "^test:"
 
+homebrew_casks:
+  - name: restui
+    homepage: "https://example.com/"
+    description: "API client in your terminal"
+    repository:
+      owner: arfadmuzali
+      name: homebrew-restui
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
 release:
   footer: >-
 
