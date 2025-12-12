@@ -45,11 +45,12 @@ changelog:
 
 homebrew_casks:
   - name: restui
-    homepage: "https://example.com/"
+    homepage: "https://github.com/arfadmuzali/restui"
     description: "API client in your terminal"
     repository:
       owner: arfadmuzali
       name: homebrew-restui
+      branch: master
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
