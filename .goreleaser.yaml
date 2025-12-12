@@ -51,6 +51,7 @@ homebrew_casks:
       owner: arfadmuzali
       name: homebrew-restui
       branch: master
+      token: "{{ .Env.GH_PAT}}"
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
