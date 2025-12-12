@@ -21,14 +21,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: stable
-      - name: Install deps
-        run: sudo apt-get update && sudo apt-get install -y build-essential
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          distribution: goreleaser-cross
-          version: latest
-          args: release --clean
+      - name: Build with goreleaser-cross
+        run: |
+          docker run --rm \
+            -v "$PWD":/project \
+            -w /project \
+            ghcr.io/goreleaser/goreleaser-cross:latest \
+            goreleaser release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_PAT: ${{ secrets.GH_PAT }}
