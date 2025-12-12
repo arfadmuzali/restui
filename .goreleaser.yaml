@@ -14,26 +14,14 @@ before:
     - go mod tidy
 
 env:
-  - CGO_ENABLED=1
+  - CGO_ENABLED=0
 
 builds:
-  - id: mines-win
+  - id: restui
     goos:
       - windows
-    goarch:
-      - amd64
-    env:
-      - CC=x86_64-w64-mingw32-gcc
-      - CXX=x86_64-w64-mingw32-g++
-
-  - id: mines-linux
-    goos:
       - linux
-    goarch:
-      - amd64
-    env:
-      - CC=x86_64-linux-gnu-gcc
-      - CXX=x86_64-linux-gnu-g++
+      - darwin
 
 archives:
   - formats: [tar.gz]
@@ -57,18 +45,18 @@ changelog:
       - "^docs:"
       - "^test:"
 
-homebrew_casks:
-  - name: restui
-    homepage: "https://github.com/arfadmuzali/restui"
-    description: "API client in your terminal"
-    repository:
-      owner: arfadmuzali
-      name: homebrew-restui
-      branch: main
-      token: "{{ .Env.GH_PAT}}"
-    commit_author:
-      name: goreleaserbot
-      email: bot@goreleaser.com
+# homebrew_casks:
+#   - name: restui
+#     homepage: "https://github.com/arfadmuzali/restui"
+#     description: "API client in your terminal"
+#     repository:
+#       owner: arfadmuzali
+#       name: homebrew-restui
+#       branch: main
+#       token: "{{ .Env.GH_PAT}}"
+#     commit_author:
+#       name: goreleaserbot
+#       email: bot@goreleaser.com
 release:
   footer: >-
 
