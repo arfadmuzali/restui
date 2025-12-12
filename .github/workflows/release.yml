@@ -24,7 +24,7 @@ jobs:
       - name: Build with goreleaser-cross
         run: |
           docker run --rm \
-            -v "$PWD":/project \
+            -v ${{ github.workspace }}:/project \
             -w /project \
             ghcr.io/goreleaser/goreleaser-cross:latest \
             goreleaser release --clean
