@@ -75,18 +75,18 @@ changelog:
       - "^docs:"
       - "^test:"
 
-# homebrew_casks:
-#   - name: restui
-#     homepage: "https://github.com/arfadmuzali/restui"
-#     description: "API client in your terminal"
-#     repository:
-#       owner: arfadmuzali
-#       name: homebrew-restui
-#       branch: main
-#       token: "{{ .Env.GH_PAT}}"
-#     commit_author:
-#       name: goreleaserbot
-#       email: bot@goreleaser.com
+homebrew_casks:
+  - name: restui
+    homepage: "https://github.com/arfadmuzali/restui"
+    description: "API client in your terminal"
+    repository:
+      owner: arfadmuzali
+      name: homebrew-restui
+      branch: main
+      token: "{{ .Env.GH_PAT}}"
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
 release:
   footer: >-
 
