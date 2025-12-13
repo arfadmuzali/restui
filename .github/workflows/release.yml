@@ -17,17 +17,24 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: stable
+
       - name: Build with goreleaser-cross
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/project \
-            -w /project \
-            ghcr.io/goreleaser/goreleaser-cross:latest \
-            goreleaser release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          docker run \
+            --rm \
+            -e CGO_ENABLED=1 \
+            -e GITHUB_TOKEN=${GITHUB_TOKEN} \
+            -e GH_PAT=${GH_PAT} \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "$(pwd)":/go/src/github.com/arfadmuzali/restui \
+            -w /go/src/github.com/arfadmuzali/restui \
+            ghcr.io/goreleaser/goreleaser-cross:latest \
+            release --clean --snapshot
