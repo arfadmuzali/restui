@@ -86,10 +86,10 @@ func (m MainModel) StartRequest() (MainModel, tea.Cmd) {
 
 func (m MainModel) HandleHttpRequest() tea.Msg {
 	client := &http.Client{
-		Timeout: 60 * time.Second,
+		Timeout:   60 * time.Second,
+		Transport: &http.Transport{},
 	}
 
-	// TODO: start dummy headers
 	headers := map[string]string{}
 
 	for _, header := range m.RequestModel.Headers {
@@ -116,7 +116,6 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 	var js any
 	testerror := json.Unmarshal([]byte(m.RequestModel.TextArea.Value()), &js)
 
-	// if !json.Valid([]byte(m.RequestModel.TextArea.Value())) &&
 	if testerror != nil &&
 		headers["Content-Type"] == "application/json" &&
 		m.MethodModel.ActiveState != method.GET {
@@ -134,19 +133,17 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 		req.Header.Set(key, value)
 	}
 
-	// TODO: end dummy headers
-
 	resp, err := client.Do(req)
 	if err != nil {
 		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: 0})
 	}
 	responseHeader = resp.Header
 
-	if resp.StatusCode >= 400 {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Unexpected status code: %v", resp.StatusCode), Headers: responseHeader, StatusCode: resp.StatusCode})
-	}
-
 	result, err := io.ReadAll(resp.Body)
+
+	if err == io.EOF || err == io.ErrUnexpectedEOF {
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: resp.StatusCode})
+	}
 
 	if err != nil {
 		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: resp.StatusCode})

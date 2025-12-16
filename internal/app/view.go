@@ -213,13 +213,11 @@ func body(m MainModel) string {
 	var responseStatusCode string
 	if m.ResponseModel.Result.StatusCode == 0 {
 		responseStatusCode = ""
-	} else if m.ResponseModel.Result.StatusCode <= 300 {
+	} else if m.ResponseModel.Result.StatusCode < 300 {
 		responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.GreenColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
-	} else if m.ResponseModel.Result.StatusCode <= 400 {
-
+	} else if m.ResponseModel.Result.StatusCode < 400 {
 		responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.OrangeColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
-	} else if m.ResponseModel.Result.StatusCode <= 500 {
-
+	} else {
 		responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
 	}
 
