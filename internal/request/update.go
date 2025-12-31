@@ -15,11 +15,89 @@ func (m RequestModel) Init() tea.Cmd {
 	return textarea.Blink
 }
 
+func (m RequestModel) updateTextArea(msg tea.Msg) (textarea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	if !m.TextArea.Focused() {
+		return m.TextArea, cmd
+	}
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case `"`:
+			m.TextArea.InsertString(`""`)
+			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+		case `'`:
+			m.TextArea.InsertString(`'`)
+			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+		case "`":
+			m.TextArea.InsertString("`")
+			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+		case `(`:
+			m.TextArea.InsertString(`()`)
+			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+		case `[`:
+			m.TextArea.InsertString(`[]`)
+			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+		case `{`:
+			m.TextArea.InsertString(`{}`)
+			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+		case "backspace":
+			line := strings.Split(m.TextArea.Value(), "\n")[m.TextArea.Line()]
+
+			lineInfo := m.TextArea.LineInfo()
+			// col is cursor position
+			col := lineInfo.CharOffset
+
+			if col == 0 {
+				m.TextArea, cmd = m.TextArea.Update(msg)
+				break
+			}
+
+			// current is character before cursor
+			current := line[col-1]
+
+			isPairChar := current == '`' ||
+				current == '[' ||
+				current == '{' ||
+				current == '(' ||
+				current == '"' ||
+				current == '\''
+
+			if !isPairChar {
+				m.TextArea, cmd = m.TextArea.Update(msg)
+				break
+			}
+
+			if col == lineInfo.CharWidth-1 {
+				m.TextArea, cmd = m.TextArea.Update(msg)
+				break
+			}
+
+			if current == line[col-1] && current == line[col] {
+				m.TextArea, cmd = m.TextArea.Update(
+					tea.KeyMsg{Type: tea.KeyBackspace},
+				)
+				m.TextArea, cmd = m.TextArea.Update(
+					tea.KeyMsg{Type: tea.KeyDelete},
+				)
+				break
+			}
+
+			m.TextArea, cmd = m.TextArea.Update(msg)
+		default:
+			m.TextArea, cmd = m.TextArea.Update(msg)
+		}
+	}
+
+	return m.TextArea, cmd
+}
+
 func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
 
-	m.TextArea, cmd = m.TextArea.Update(msg)
+	m.TextArea, cmd = m.updateTextArea(msg)
 	cmds = append(cmds, cmd)
 	if m.Hovered {
 		m.TableHeaders, cmd = m.TableHeaders.Update(msg)
