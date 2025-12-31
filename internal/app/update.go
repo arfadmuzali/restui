@@ -1,6 +1,9 @@
 package app
 
 import (
+	"bytes"
+	"encoding/json"
+
 	"github.com/arfadmuzali/restui/internal/config"
 	methodModel "github.com/arfadmuzali/restui/internal/method"
 	"github.com/arfadmuzali/restui/internal/request"
@@ -229,11 +232,30 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "alt+enter":
 			return m.StartRequest()
-		// WARN: maybe this shortcut will cause bugs in the future
+		// WARN: i think this shortcut will cause bugs in the future
 		case "ctrl+l":
 			m = m.BlurAll()
 			m.UrlModel.UrlInput.Focus()
 			return m, nil
+		case "ctrl+f":
+			// JSON only btw
+
+			// headers := make(map[string]bool)
+			// for _, val := range m.RequestModel.Headers {
+			// 	lowercaseHeaderKey := strings.ToLower(val.Key)
+			// 	headers[lowercaseHeaderKey] = true
+			// }
+
+			// if _, ok := headers["content-type"]; ok && m.RequestModel.TextArea.Focused() {
+			if m.RequestModel.TextArea.Focused() {
+				var result bytes.Buffer
+				err := json.Indent(&result, []byte(m.RequestModel.TextArea.Value()), "", "  ")
+				if err != nil {
+					return m, nil
+				}
+				m.RequestModel.TextArea.SetValue(result.String())
+				return m, nil
+			}
 		case "ctrl+b":
 			m = m.BlurAll()
 			m.RequestModel.FocusedTab = request.Body

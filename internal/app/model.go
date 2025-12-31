@@ -119,7 +119,7 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 	if testerror != nil &&
 		headers["Content-Type"] == "application/json" &&
 		m.MethodModel.ActiveState != method.GET {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Something wrong with your request body\n %s", testerror.Error()), Headers: responseHeader, StatusCode: 400})
+		return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Something wrong with your request body\n%s", testerror.Error()), Headers: responseHeader, StatusCode: 400})
 	}
 
 	req, err := http.NewRequest(m.MethodModel.ActiveState.String(), url, requestBody)

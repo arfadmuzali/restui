@@ -34,6 +34,7 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 # Request Keybinds
 - **ctrl+l**: Go to URL
 - **ctrl+b**: Go to request body
+- **ctrl+f**: Format request body (JSON only)
 - **ctrl+o**: Toggle method modal/popup
     - **k/up**: Navigate up in method modal/popup
     - **j/down**: Navigate down in method modal/popup
