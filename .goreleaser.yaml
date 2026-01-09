@@ -20,6 +20,8 @@ builds:
       - CGO_ENABLED=1
       - CC=x86_64-w64-mingw32-gcc
       - CXX=x86_64-w64-mingw32-g++
+    ldflags:
+      - -s -w -X cmd.Version={{.Version}}
 
   - id: restui-linux-amd64
     goos:
@@ -30,6 +32,8 @@ builds:
       - CGO_ENABLED=1
       - CC=x86_64-linux-gnu-gcc
       - CXX=x86_64-linux-gnu-g++
+    ldflags:
+      - -s -w -X cmd.Version={{.Version}}
 
   - id: restui-darwin-amd64
     goos:
@@ -40,6 +44,8 @@ builds:
       - CGO_ENABLED=1
       - CC=o64-clang
       - CXX=o64-clang++
+    ldflags:
+      - -s -w -X cmd.Version={{.Version}}
 
   - id: restui-darwin-arm64
     goos:
@@ -51,6 +57,9 @@ builds:
       - CC=oa64-clang
       - CXX=oa64-clang++
     # this name template makes the OS and Arch compatible with the results of `uname`.
+    ldflags:
+      - -s -w -X cmd.Version={{.Version}}
+
 archives:
   - formats: [tar.gz]
     name_template: >-

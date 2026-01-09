@@ -1,14 +1,7 @@
 package main
 
-import (
-	"log"
-
-	"github.com/arfadmuzali/restui/cmd/restui"
-)
+import "github.com/arfadmuzali/restui/cmd"
 
 func main() {
-	err := restui.Execute()
-	if err != nil {
-		log.Fatal(err)
-	}
+	cmd.Execute()
 }

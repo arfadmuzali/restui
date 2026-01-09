@@ -20,6 +20,7 @@ brew install restui
 ```bash
 go install github.com/arfadmuzali/restui@latest
 ```
+Please note: If you get an error claiming that restui cannot be found or is not defined, you need to add ~/go/bin to your $PATH (MacOS/Linux), or %HOME%\go\bin (Windows). Not to be mistaken for C:\Go\bin (which is for Go's own binary).
 
 ### Install From Source
 ```bash
