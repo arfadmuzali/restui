@@ -2,10 +2,12 @@ package config
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"os"
 	"path/filepath"
 )
+
+var DB, ErrorDatabaseInitialize = DatabaseInitialize()
 
 // Make sure config file exist
 func ConfigInitialization() error {
@@ -27,7 +29,7 @@ func ConfigInitialization() error {
 		firstTime = true
 	}
 
-	db, err := sql.Open("sqlite3", dataPath)
+	db, err := sql.Open("sqlite", dataPath)
 	if err != nil {
 		return err
 	}
@@ -42,6 +44,7 @@ func ConfigInitialization() error {
 
 	return err
 }
+
 func DatabaseInitialize() (*sql.DB, error) {
 	configDirPath, err := os.UserConfigDir()
 	if err != nil {
@@ -56,7 +59,7 @@ func DatabaseInitialize() (*sql.DB, error) {
 
 	dataPath := filepath.Join(appDir, "data.db")
 
-	db, err := sql.Open("sqlite3", dataPath)
+	db, err := sql.Open("sqlite", dataPath)
 	if err != nil {
 		return nil, err
 	}

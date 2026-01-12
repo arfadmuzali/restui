@@ -1,35 +1,29 @@
 package config
 
 func AddSuggestion(text string) error {
-	db, err := DatabaseInitialize()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
 
-	_, err = db.Exec(`
+	_, err := DB.Exec(`
 		INSERT INTO suggestions (text)
 		VALUES (?)
 		ON CONFLICT(text) DO UPDATE SET
     		updated_at = CURRENT_TIMESTAMP;
 		`, text)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func GetSuggestions() ([]string, error) {
-	db, err := DatabaseInitialize()
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
 
-	rows, err := db.Query(`
+	rows, err := DB.Query(`
 		SELECT text FROM suggestions ORDER BY updated_at DESC;
 		`)
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 	var result []string
 
