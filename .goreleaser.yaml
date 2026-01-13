@@ -11,54 +11,18 @@ before:
     - go mod tidy
 
 builds:
-  - id: restui-windows-amd64
+  - env:
+      - CGO_ENABLED=0
     goos:
       - windows
-    goarch:
-      - amd64
-    env:
-      - CGO_ENABLED=1
-      - CC=x86_64-w64-mingw32-gcc
-      - CXX=x86_64-w64-mingw32-g++
-    ldflags:
-      - -s -w -X cmd.Version={{.Version}}
-
-  - id: restui-linux-amd64
-    goos:
+      - darwin
       - linux
     goarch:
       - amd64
-    env:
-      - CGO_ENABLED=1
-      - CC=x86_64-linux-gnu-gcc
-      - CXX=x86_64-linux-gnu-g++
-    ldflags:
-      - -s -w -X cmd.Version={{.Version}}
-
-  - id: restui-darwin-amd64
-    goos:
-      - darwin
-    goarch:
-      - amd64
-    env:
-      - CGO_ENABLED=1
-      - CC=o64-clang
-      - CXX=o64-clang++
-    ldflags:
-      - -s -w -X cmd.Version={{.Version}}
-
-  - id: restui-darwin-arm64
-    goos:
-      - darwin
-    goarch:
       - arm64
-    env:
-      - CGO_ENABLED=1
-      - CC=oa64-clang
-      - CXX=oa64-clang++
-    # this name template makes the OS and Arch compatible with the results of `uname`.
+      - "386"
     ldflags:
-      - -s -w -X cmd.Version={{.Version}}
+      - -s -w -X main.version={{.Version}}
 
 archives:
   - formats: [tar.gz]

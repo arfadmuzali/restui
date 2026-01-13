@@ -29,6 +29,7 @@ cd restui
 go build -o restui
 # Move ./restui file into your bin
 ```
+All releases are alvailable on Github Release
 
 ## Uninstall
 

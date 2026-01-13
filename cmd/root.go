@@ -10,15 +10,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Version = "dev"
-
 var guide bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:     "restui",
-	Version: Version,
-	Short:   "RESTUI, API Client in your terminal",
+	Use:   "restui",
+	Short: "RESTUI, API Client in your terminal",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if guide {
 			out, err := glamour.Render(help.Guide, "dark")
@@ -31,7 +28,8 @@ var rootCmd = &cobra.Command{
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
+func Execute(version string) {
+	rootCmd.Version = version
 	err := rootCmd.Execute()
 	if err != nil {
 		log.Fatal(err)
