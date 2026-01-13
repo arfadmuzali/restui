@@ -1,27 +1,30 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/arfadmuzali/restui/cmd/restui"
+	"github.com/arfadmuzali/restui/internal/help"
+	"github.com/charmbracelet/glamour"
 	"github.com/spf13/cobra"
 )
 
 var Version = "dev"
+
+var guide bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:     "restui",
 	Version: Version,
 	Short:   "RESTUI, API Client in your terminal",
-	// Long: `RESTUI is a Terminal User Interface API client for quickly testing
-	// and managing HTTP requests directly from your terminal.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if guide {
+			out, err := glamour.Render(help.Guide, "dark")
+			fmt.Print(out)
+			return err
+		}
 		return restui.Execute()
 	},
 }
@@ -44,5 +47,5 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().BoolVarP(&guide, "guide", "g", false, "List of shortcut and tips and trick.")
 }

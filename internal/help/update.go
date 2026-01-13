@@ -24,7 +24,7 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 
 			m.ViewportReady = true
 
-			rawGuide := `
+			Guide := `
 # Common Keybinds
 - **ctrl+c**: Exit
 - **ESC**: Close modal/popup
@@ -76,7 +76,7 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 				return m, nil
 			}
 
-			guide, err := r.Render(rawGuide)
+			guide, err := r.Render(Guide)
 
 			if err != nil {
 				m.Viewport.SetContent("Failed to render guide " + err.Error())
