@@ -191,9 +191,9 @@ func body(m MainModel) string {
 		switch i {
 		case 0:
 			if m.ResponseModel.FocusedTab == response.Body {
-				responseTabs = append(responseTabs, zone.Mark("responseBody", focusedStyle.Render("Body")))
+				responseTabs = append(responseTabs, zone.Mark("responseBody", focusedStyle.Render("Response Body")))
 			} else {
-				responseTabs = append(responseTabs, zone.Mark("responseBody", lipgloss.NewStyle().Padding(0, 1).Render("Body")))
+				responseTabs = append(responseTabs, zone.Mark("responseBody", lipgloss.NewStyle().Padding(0, 1).Render("Response Body")))
 			}
 		case 1:
 			if m.ResponseModel.FocusedTab == response.Headers {
@@ -210,33 +210,32 @@ func body(m MainModel) string {
 		}
 	}
 
-	var responseStatusCode string
-	if m.ResponseModel.Result.StatusCode == 0 {
-		responseStatusCode = ""
-	} else if m.ResponseModel.Result.StatusCode < 300 {
-		responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.GreenColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
-	} else if m.ResponseModel.Result.StatusCode < 400 {
-		responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.OrangeColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
-	} else {
-		responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
-	}
+	// var responseStatusCode string
+	// if m.ResponseModel.Result.StatusCode == 0 {
+	// 	responseStatusCode = ""
+	// } else if m.ResponseModel.Result.StatusCode < 300 {
+	// 	responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.GreenColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
+	// } else if m.ResponseModel.Result.StatusCode < 400 {
+	// 	responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.OrangeColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
+	// } else {
+	// 	responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
+	// }
 
-	var copyButton string
-	if m.ResponseModel.FocusedTab == response.Body && m.ResponseModel.Result.Data != nil {
-		copyButton = zone.Mark("copyResponseBody", lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.OrangeColor)).Render("Copy-Response"))
-	}
+	// var copyButton string
+	// if m.ResponseModel.FocusedTab == response.Body && m.ResponseModel.Result.Data != nil {
+	// 	copyButton = zone.Mark("copyResponseBody", lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.OrangeColor)).Render("Copy"))
+	// }
 
+	responseTabsSection := strings.Join(responseTabs, "|")
 	responseSection := lipgloss.JoinVertical(
 		lipgloss.Left,
 
 		lipgloss.JoinHorizontal(
 			lipgloss.Left,
-			lipgloss.NewStyle().Width(bodyWidth*30/100).Align(lipgloss.Left, lipgloss.Center).Render(
-				strings.Join(responseTabs, "|"),
-			),
-			lipgloss.NewStyle().Width(bodyWidth*30/100).Align(lipgloss.Right, lipgloss.Center).Render(
-				lipgloss.NewStyle().Bold(true).Padding(0, 1).Render(copyButton, responseStatusCode),
-			),
+			lipgloss.NewStyle().Align(lipgloss.Left, lipgloss.Center).Render(responseTabsSection),
+			// lipgloss.NewStyle().Width(bodyWidth*35/100).Align(lipgloss.Right, lipgloss.Center).Background(lipgloss.Color(utils.BlueColor)).Render(
+			// 	lipgloss.NewStyle().Bold(true).Padding(0, 1).Render(copyButton, responseStatusCode),
+			// ),
 		),
 
 		responseContent,

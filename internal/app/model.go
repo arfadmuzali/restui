@@ -2,8 +2,9 @@ package app
 
 import (
 	"bytes"
-	"encoding/json"
-	"fmt"
+	"strconv"
+	// "encoding/json"
+	// "fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -96,6 +97,7 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 		headers[header.Key] = header.Value
 	}
 
+	// Validate Url
 	url := strings.TrimSpace(m.UrlModel.UrlInput.Value())
 
 	if url == "" {
@@ -109,18 +111,19 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 
 	requestBody := bytes.NewReader([]byte(m.RequestModel.TextArea.Value()))
 
-	if _, isBodyexists := headers["Content-Type"]; requestBody.Len() > 0 && !isBodyexists {
+	if _, isContentTypeExist := headers["Content-Type"]; requestBody.Len() > 0 && !isContentTypeExist {
 		headers["Content-Type"] = "application/json"
 	}
 
-	var js any
-	testerror := json.Unmarshal([]byte(m.RequestModel.TextArea.Value()), &js)
+	// Validate RequestBody
+	// var js any
+	// testerror := json.Unmarshal([]byte(m.RequestModel.TextArea.Value()), &js)
 
-	if testerror != nil &&
-		headers["Content-Type"] == "application/json" &&
-		m.MethodModel.ActiveState != method.GET {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Something wrong with your request body\n%s", testerror.Error()), Headers: responseHeader, StatusCode: 400})
-	}
+	// if testerror != nil &&
+	// 	headers["Content-Type"] == "application/json" &&
+	// 	m.MethodModel.ActiveState != method.GET {
+	// 	return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Something wrong with your request body\n%s", testerror.Error()), Headers: responseHeader, StatusCode: 400})
+	// }
 
 	req, err := http.NewRequest(m.MethodModel.ActiveState.String(), url, requestBody)
 	if err != nil {
@@ -133,7 +136,10 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 		req.Header.Set(key, value)
 	}
 
+	start := time.Now()
 	resp, err := client.Do(req)
+	responseTime := time.Since(start)
+
 	if err != nil {
 		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: 0})
 	}
@@ -149,5 +155,11 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: resp.StatusCode})
 	}
 
-	return response.ResultMsg(response.ResultMsg{Data: result, Error: nil, Headers: responseHeader, StatusCode: resp.StatusCode})
+	return response.ResultMsg(response.ResultMsg{
+		Data:         result,
+		Error:        nil,
+		Headers:      responseHeader,
+		StatusCode:   resp.StatusCode,
+		ResponseTime: strconv.Itoa(int(responseTime.Abs().Milliseconds())),
+	})
 }

@@ -35,6 +35,7 @@ type ResultMsg struct {
 	Body               string
 	Error              error
 	ResponseFocusedTab string
+	ResponseTime       string
 }
 
 type IsLoadingMsg bool
@@ -49,6 +50,7 @@ type ResponseModel struct {
 	ViewportReady bool
 	Hovered       bool
 	FocusedTab    ResponseTab
+	ResponseTime  string
 }
 
 func New() ResponseModel {

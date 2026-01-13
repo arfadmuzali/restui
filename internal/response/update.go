@@ -25,8 +25,8 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		// minus 1 for text header
-		m.ResponseHeight = msg.Height*90/100 - utils.BoxStyle.GetVerticalBorderSize() - 1
+		// minus 1 for text header and for RequestTime
+		m.ResponseHeight = msg.Height*90/100 - utils.BoxStyle.GetVerticalBorderSize() - 1 - 1
 
 		var addon int
 		if msg.Width%10 != 0 {
@@ -82,6 +82,7 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 			}
 
 		}
+		m.ResponseTime = msg.ResponseTime + " ms"
 		m.FocusedTab = Body
 		m.Result.Body = wrap.String(s, m.ResponseWidth)
 		m.Viewport.SetContent(m.Result.Body)

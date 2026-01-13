@@ -94,7 +94,7 @@ func New() RequestModel {
 	valueInput.ShowSuggestions = true
 
 	headers := []Header{
-		{Key: "User-Agent", Value: "RESTUI/0.0.1"},
+		{Key: "User-Agent", Value: "RESTUI/1.0.0"},
 		{Key: "Accept", Value: "*/*"},
 	}
 
