@@ -6,7 +6,17 @@ RESTUI is a Terminal User Interface API client designed for testing HTTP request
 
 ## Installation
 
-### Using Homebrew Install
+### Using AUR
+
+```bash
+# yay
+yay -S restui
+
+# paru
+paru -S restui
+```
+
+### Using Homebrew 
 
 ```bash
 brew tap arfadmuzali/restui
