@@ -11,6 +11,11 @@ import (
 )
 
 func (m ResponseModel) View() string {
+	// to prevent layout breakage. 45 is the minimum width when responseStatusCode, responseStatusText, and responseTime are combined
+	responseStatusText := http.StatusText(m.Result.StatusCode)
+	if m.ResponseWidth < 45 {
+		responseStatusText = ""
+	}
 
 	var responseStatusCode string
 	if m.Result.StatusCode == 0 {
@@ -19,17 +24,17 @@ func (m ResponseModel) View() string {
 		responseStatusCode = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color(utils.GreenColor)).
-			Render(strconv.Itoa(m.Result.StatusCode), http.StatusText(m.Result.StatusCode))
+			Render(strconv.Itoa(m.Result.StatusCode), responseStatusText)
 	} else if m.Result.StatusCode < 400 {
 		responseStatusCode = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color(utils.OrangeColor)).
-			Render(strconv.Itoa(m.Result.StatusCode), http.StatusText(m.Result.StatusCode))
+			Render(strconv.Itoa(m.Result.StatusCode), responseStatusText)
 	} else {
 		responseStatusCode = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color(utils.RedColor)).
-			Render(strconv.Itoa(m.Result.StatusCode), http.StatusText(m.Result.StatusCode))
+			Render(strconv.Itoa(m.Result.StatusCode), responseStatusText)
 	}
 
 	var copyButton string

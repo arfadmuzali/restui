@@ -15,7 +15,10 @@ import (
 
 func (m MainModel) View() string {
 
-	if m.WindowWidth < 75 || m.WindowHeight < 32 {
+	minWindowWidth := 62
+	minWindowHeight := 31
+
+	if m.WindowWidth < minWindowWidth || m.WindowHeight < minWindowHeight {
 		wrapper := lipgloss.NewStyle().
 			Align(lipgloss.Center, lipgloss.Center).
 			Height(m.WindowHeight).
@@ -23,9 +26,11 @@ func (m MainModel) View() string {
 		return wrapper.Render(lipgloss.JoinVertical(
 			lipgloss.Center,
 			"Terminal size is too small",
-			fmt.Sprintf("%v < 75 x %v < 32",
+			fmt.Sprintf("%v < %d x %v < %d",
 				lipgloss.NewStyle().Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.WindowWidth)),
+				minWindowWidth,
 				lipgloss.NewStyle().Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.WindowHeight)),
+				minWindowHeight,
 			),
 		))
 	}
