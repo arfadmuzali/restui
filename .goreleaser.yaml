@@ -48,20 +48,20 @@ changelog:
       - "^docs:"
       - "^test:"
 
-aurs:
-  - name: restui
-    homepage: "https://github.com/arfadmuzali/restui"
-    description: "API Client in your terminal"
-    license: "MIT"
-    private_key: "{{ .Env.AUR_KEY }}"
-    git_url: "ssh://aur@aur.archlinux.org/restui-bin.git"
-    commit_author:
-      name: "arfadmuzali"
-      email: "arfadmuzali@users.noreply.github.com"
-    package: |-
-      install -Dm755 "./restui" "${pkgdir}/usr/bin/restui"
-      install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/restui/LICENSE"
-
+# aurs:
+#   - name: restui
+#     homepage: "https://github.com/arfadmuzali/restui"
+#     description: "API Client in your terminal"
+#     license: "MIT"
+#     private_key: "{{ .Env.AUR_KEY }}"
+#     git_url: "ssh://aur@aur.archlinux.org/restui-bin.git"
+#     commit_author:
+#       name: "arfadmuzali"
+#       email: "arfadmuzali@users.noreply.github.com"
+#     package: |-
+#       install -Dm755 "./restui" "${pkgdir}/usr/bin/restui"
+#       install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/restui/LICENSE"
+#
 # aur_sources:
 #   - name: restui
 #     homepage: "https://github.com/arfadmuzali/restui"
@@ -70,18 +70,44 @@ aurs:
 #     git_url: "ssh://aur@aur.archlinux.org/restui.git"
 #     private_key: "{{ .Env.AUR_KEY }}"
 #     commit_author:
-#       name: "arfadmuzali"
-#       email: "arfadmuzali@users.noreply.github.com"
+#       name: "Arfad Muzali"
+#       email: "arfadmuzali258@gmail.com"
 #     makedepends:
 #       - go
 #       - git
 #     prepare: |-
 #       go mod download
 #     build: |-
+#       export CGO_ENABLED=0
 #       export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
 #       go build -ldflags="-s -w -X main.version=v${pkgver}" .
 #     package: |-
-#       install -Dm755 restui "$pkgdir/usr/bin/restui"
+#       install -Dm755 restui "${pkgdir}/usr/bin/restui"
+#       install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+
+aur_sources:
+  - name: restui
+    git_url: "ssh://aur@aur.archlinux.org/restui.git"
+    maintainers:
+      - "Arfad <arfadmuzali258@gmail.com>"
+    description: "API Client in your terminal"
+    homepage: "https://github.com/arfadmuzali/restui"
+    license: "MIT"
+    private_key: "{{ .Env.AUR_KEY }}"
+    prepare: |-
+      cd "${pkgname}_${pkgver}"
+      go mod download
+    build: |-
+      cd "${pkgname}_${pkgver}"
+      export CGO_ENABLED=0
+      export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
+      go build \
+        -trimpath \
+        -ldflags "-s -w -X main.version=${pkgver}" \
+        -o restui
+    package: |-
+      install -Dm755 restui "${pkgdir}/usr/bin/restui"
+      install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
 
 homebrew_casks:
   - name: restui
