@@ -9,6 +9,11 @@ before:
   hooks:
     # You may remove this if you don't use go modules.
     - go mod tidy
+    - rm -rf completions
+    - mkdir completions
+    - sh -c 'go run . completion bash >./completions/restui.bash'
+    - sh -c 'go run . completion zsh >./completions/restui.zsh'
+    - sh -c 'go run . completion fish >./completions/restui.fish'
 
 builds:
   - env:
@@ -45,6 +50,64 @@ changelog:
       - "^docs:"
       - "^test:"
 
+aur_sources:
+  - private_key: "{{ .Env.AUR_KEY }}"
+    disable: "{{ with .Prerelease }}true{{ end }}"
+    git_url: "ssh://aur@aur.archlinux.org/restui.git"
+    commit_author:
+      name: "arfadmuzali"
+      email: "arfadmuzali@users.noreply.github.com"
+    makedepends:
+      - go
+      - git
+    prepare: |-
+      go mod download
+    build: |-
+      export CGO_CPPFLAGS="${CPPFLAGS}"
+      export CGO_CFLAGS="${CFLAGS}"
+      export CGO_CXXFLAGS="${CXXFLAGS}"
+      export CGO_LDFLAGS="${LDFLAGS}"
+      export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
+      go build -ldflags="-w -s -buildid='' -X main.version=v${pkgver}" .
+    package: |-
+      # binary
+      install -Dm755 "./restui" "${pkgdir}/usr/bin/restui"
+      # license
+      mkdir -p "${pkgdir}/usr/share/licenses/restui/"
+      install -Dm644 ./LICENSE* "${pkgdir}/usr/share/licenses/restui/"
+      # README
+      mkdir -pv "${pkgdir}/usr/share/doc/restui/"
+      install -Dm644 README* "${pkgdir}/usr/share/doc/restui/"
+
+aurs:
+  - private_key: "{{ .Env.AUR_KEY }}"
+    disable: "{{ with .Prerelease }}true{{ end }}"
+    git_url: "ssh://aur@aur.archlinux.org/restui-bin.git"
+    commit_author:
+      name: "arfadmuzali"
+      email: "arfadmuzali@users.noreply.github.com"
+    provides:
+      - restui
+    conflicts:
+      - restui
+    package: |-
+      case "$CARCH" in
+        aarch64)
+          cd "${srcdir}/restui_${pkgver}_Linux_arm64"
+          ;;
+        *)
+          cd "${srcdir}/restui_${pkgver}_Linux_${CARCH}"
+          ;;
+      esac
+      # binary
+      install -Dm755 "./restui" "${pkgdir}/usr/bin/restui"
+      # license
+      mkdir -p "${pkgdir}/usr/share/licenses/restui/"
+      install -Dm644 ./LICENSE* "${pkgdir}/usr/share/licenses/restui/"
+      # README
+      mkdir -pv "${pkgdir}/usr/share/doc/restui/"
+      install -Dm644 README* "${pkgdir}/usr/share/doc/restui/"
+
 homebrew_casks:
   - name: restui
     homepage: "https://github.com/arfadmuzali/restui"
@@ -57,6 +120,7 @@ homebrew_casks:
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
+
 release:
   footer: >-
 
