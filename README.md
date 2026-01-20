@@ -6,7 +6,7 @@ RESTUI is a Terminal User Interface API client designed for testing HTTP request
 
 ## Installation
 
-### Using AUR
+### Using AUR (arch btw)
 
 ```bash
 # yay
