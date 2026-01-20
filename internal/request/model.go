@@ -2,6 +2,7 @@ package request
 
 import (
 	"github.com/arfadmuzali/restui/internal/utils"
+	"github.com/arfadmuzali/restui/internal/version"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -94,7 +95,7 @@ func New() RequestModel {
 	valueInput.ShowSuggestions = true
 
 	headers := []Header{
-		{Key: "User-Agent", Value: "RESTUI/1.0.0"},
+		{Key: "User-Agent", Value: "RESTUI/" + version.Version},
 		{Key: "Accept", Value: "*/*"},
 	}
 
