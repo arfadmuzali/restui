@@ -16,7 +16,7 @@ func Execute() error {
 	zone.NewGlobal()
 	defer zone.Close()
 	p := app.InitModel()
-	_, err = tea.NewProgram(p, tea.WithAltScreen()).Run()
+	_, err = tea.NewProgram(p, tea.WithAltScreen(), tea.WithMouseCellMotion()).Run()
 
 	return err
 }

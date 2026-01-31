@@ -2,7 +2,9 @@ package response
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -50,7 +52,20 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 		var s string
 
 		if m.Result.Error != nil {
-			s = m.Result.Error.Error()
+			errUrl := &url.Error{}
+			var errMessage string
+			if errors.As(m.Result.Error, &errUrl) {
+				errMessage = errUrl.Err.Error()
+			} else {
+				errMessage = m.Result.Error.Error()
+			}
+			textStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(utils.RedColor))
+			fullMessage := lipgloss.JoinVertical(lipgloss.Center,
+				textStyle.Bold(true).Render("Could not send request"),
+				textStyle.Render(errMessage),
+			)
+			s = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center).Width(m.Viewport.Width).Height(m.Viewport.Height).Render(fullMessage)
+
 		} else {
 			contentType := m.Result.Headers.Get("Content-Type")
 
