@@ -282,7 +282,7 @@ func header(m MainModel) string {
 	method := lipgloss.NewStyle().Width(m.WindowWidth*10/100+1).Align(lipgloss.Center, lipgloss.Center).Foreground(lipgloss.Color(color))
 
 	sendButton := lipgloss.NewStyle().
-		Width(m.WindowWidth*10/100-utils.BoxStyle.GetHorizontalBorderSize()).
+		Width(m.WindowWidth*10/100).
 		Align(lipgloss.Center, lipgloss.Top).
 		Foreground(lipgloss.Color(utils.BlueColor)).
 		Border(lipgloss.RoundedBorder()).
@@ -291,7 +291,7 @@ func header(m MainModel) string {
 	// XXX: dunno why but i have to add the widht by 1
 	if m.WindowWidth%10 != 0 {
 		sendButton = lipgloss.NewStyle().
-			Width(m.WindowWidth*10/100-utils.BoxStyle.GetHorizontalBorderSize()+1).
+			Width(m.WindowWidth*10/100+1).
 			Align(lipgloss.Center, lipgloss.Top).
 			Foreground(lipgloss.Color(utils.BlueColor)).
 			Border(lipgloss.RoundedBorder()).
@@ -305,12 +305,12 @@ func header(m MainModel) string {
 	}
 	URLAndMethod := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		Width(m.WindowWidth*90/100-utils.BoxStyle.GetHorizontalBorderSize()).
+		Width(m.WindowWidth*90/100).
 		Render(
 			zone.Mark("method", method.Render(utils.BoldStyle.Render(m.MethodModel.ActiveState.String()))),
 			separator,
 			m.UrlModel.View(),
 		)
 
-	return urlSection.Render(lipgloss.JoinHorizontal(lipgloss.Left, URLAndMethod, zone.Mark("send", sendButton.Render("SEND"))))
+	return urlSection.MaxHeight(3).Render(lipgloss.JoinHorizontal(lipgloss.Left, URLAndMethod, zone.Mark("send", sendButton.Render("SEND"))))
 }
