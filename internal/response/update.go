@@ -8,13 +8,13 @@ import (
 	"sort"
 	"strings"
 
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/arfadmuzali/restui/internal/utils"
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
-	zone "github.com/lrstanley/bubblezone"
+	zone "github.com/lrstanley/bubblezone/v2"
 	"github.com/muesli/reflow/wrap"
 )
 
@@ -37,11 +37,11 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 
 		m.ResponseWidth = msg.Width*60/100 - utils.BoxStyle.GetHorizontalBorderSize() + addon
 		if !m.ViewportReady {
-			m.Viewport = viewport.New(m.ResponseWidth, m.ResponseHeight)
+			m.Viewport = viewport.New(viewport.WithWidth(m.ResponseWidth), viewport.WithHeight(m.ResponseHeight))
 			m.ViewportReady = true
 		} else {
-			m.Viewport.Width = m.ResponseWidth
-			m.Viewport.Height = m.ResponseHeight
+			m.Viewport.SetWidth(m.ResponseWidth)
+			m.Viewport.SetHeight(m.ResponseHeight)
 		}
 
 	case ResultMsg:
@@ -64,7 +64,7 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 				textStyle.Bold(true).Render("Could not send request"),
 				textStyle.Render(errMessage),
 			)
-			s = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center).Width(m.Viewport.Width).Height(m.Viewport.Height).Render(fullMessage)
+			s = lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center).Width(m.Viewport.Width()).Height(m.Viewport.Height()).Render(fullMessage)
 
 		} else {
 			contentType := m.Result.Headers.Get("Content-Type")
@@ -102,9 +102,9 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 		m.Result.Body = wrap.String(s, m.ResponseWidth)
 		m.Viewport.SetContent(m.Result.Body)
 		return m, nil
-	case tea.MouseMsg:
+	case tea.MouseReleaseMsg:
 		m.Hovered = zone.Get("response").InBounds(msg)
-		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft {
+		if msg.Button == tea.MouseLeft {
 			if zone.Get("responseBody").InBounds(msg) {
 				m.FocusedTab = Body
 				m.Hovered = true

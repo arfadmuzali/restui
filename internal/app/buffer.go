@@ -1,6 +1,10 @@
 package app
 
 import (
+	"charm.land/bubbles/v2/spinner"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/arfadmuzali/restui/internal/help"
 	"github.com/arfadmuzali/restui/internal/hint"
 	"github.com/arfadmuzali/restui/internal/method"
@@ -8,12 +12,8 @@ import (
 	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/arfadmuzali/restui/internal/url"
 	"github.com/arfadmuzali/restui/internal/utils"
-	"github.com/charmbracelet/bubbles/spinner"
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/google/uuid"
-	zone "github.com/lrstanley/bubblezone"
+	zone "github.com/lrstanley/bubblezone/v2"
 )
 
 type Buffer struct {
@@ -64,8 +64,8 @@ func (m MainModel) BufferNavigation(msg tea.Msg) (MainModel, tea.Cmd) {
 			m.BufferModalModel.OverlayActive = false
 			return m, nil
 		}
-	case tea.MouseMsg:
-		if msg.Button == tea.MouseButtonLeft && msg.Action == tea.MouseActionRelease {
+	case tea.MouseReleaseMsg:
+		if msg.Button == tea.MouseLeft {
 			for _, buffer := range m.Buffers {
 				if zone.Get(buffer.Id).InBounds(msg) {
 					m = m.ChangeBuffer(buffer.Id)

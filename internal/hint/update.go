@@ -1,6 +1,6 @@
 package hint
 
-import tea "github.com/charmbracelet/bubbletea"
+import tea "charm.land/bubbletea/v2"
 
 func (m HintModel) Init() tea.Cmd {
 	return nil

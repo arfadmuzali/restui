@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
+	"charm.land/glamour/v2"
 	"github.com/arfadmuzali/restui/cmd/restui"
 	"github.com/arfadmuzali/restui/internal/help"
 	"github.com/arfadmuzali/restui/internal/version"
-	"github.com/charmbracelet/glamour"
 	"github.com/spf13/cobra"
 )
 

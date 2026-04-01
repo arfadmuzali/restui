@@ -5,25 +5,30 @@ import (
 	"strconv"
 	"strings"
 
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/arfadmuzali/restui/internal/method"
 	"github.com/arfadmuzali/restui/internal/request"
 	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/arfadmuzali/restui/internal/utils"
-	"github.com/charmbracelet/lipgloss"
-	zone "github.com/lrstanley/bubblezone"
+	zone "github.com/lrstanley/bubblezone/v2"
 )
 
-func (m MainModel) View() string {
+func (m MainModel) View() tea.View {
 
 	minWindowWidth := 62
 	minWindowHeight := 31
+
+	var v tea.View
+	v.AltScreen = true
+	v.MouseMode = tea.MouseModeCellMotion
 
 	if m.WindowWidth < minWindowWidth || m.WindowHeight < minWindowHeight {
 		wrapper := lipgloss.NewStyle().
 			Align(lipgloss.Center, lipgloss.Center).
 			Height(m.WindowHeight).
 			Width(m.WindowWidth)
-		return wrapper.Render(lipgloss.JoinVertical(
+		v.SetContent(wrapper.Render(lipgloss.JoinVertical(
 			lipgloss.Center,
 			"Terminal size is too small",
 			fmt.Sprintf("%v < %d x %v < %d",
@@ -32,7 +37,8 @@ func (m MainModel) View() string {
 				lipgloss.NewStyle().Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.WindowHeight)),
 				minWindowHeight,
 			),
-		))
+		)))
+		return v
 	}
 
 	mainWrapper := lipgloss.NewStyle().
@@ -55,16 +61,20 @@ func (m MainModel) View() string {
 	)
 
 	if m.MethodModel.OverlayActive {
-		return zone.Scan(Render(layout, m.MethodModel.View()))
+		v.SetContent(zone.Scan(Render(layout, m.MethodModel.View())))
+		return v
 	} else if m.HelpModel.OverlayActive {
-		return zone.Scan(Render(layout, m.HelpModel.View()))
+		v.SetContent(zone.Scan(Render(layout, m.HelpModel.View())))
+		return v
 	} else if m.BufferModalModel.OverlayActive {
 		OverlayModal := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Render(m.BufferModalModel.Viewport.View())
-
-		return zone.Scan(Render(layout, OverlayModal))
+		v.SetContent(zone.Scan(Render(layout, OverlayModal)))
+		return v
 	}
 
-	return zone.Scan(layout)
+	v.SetContent(zone.Scan(layout))
+
+	return v
 }
 
 func Render(background string, foreground string) string {

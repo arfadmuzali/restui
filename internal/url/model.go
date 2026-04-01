@@ -3,8 +3,8 @@ package url
 import (
 	"fmt"
 
+	"charm.land/bubbles/v2/textinput"
 	"github.com/arfadmuzali/restui/internal/config"
-	"github.com/charmbracelet/bubbles/textinput"
 )
 
 type UrlModel struct {

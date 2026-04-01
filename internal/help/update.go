@@ -1,10 +1,10 @@
 package help
 
 import (
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/glamour/v2"
 	"github.com/arfadmuzali/restui/internal/utils"
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/glamour"
 )
 
 func (m HelpModel) Init() tea.Cmd {
@@ -18,8 +18,8 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 		m.helpWindowHeight = msg.Height * 80 / 100
 		if !m.ViewportReady {
 			m.Viewport = viewport.New(
-				m.helpWindowWidth-utils.BoxStyle.GetHorizontalBorderSize(),
-				m.helpWindowHeight-utils.BoxStyle.GetVerticalBorderSize(),
+				viewport.WithWidth(m.helpWindowWidth-utils.BoxStyle.GetHorizontalBorderSize()),
+				viewport.WithHeight(m.helpWindowHeight-utils.BoxStyle.GetVerticalBorderSize()),
 			)
 
 			m.ViewportReady = true
@@ -43,8 +43,8 @@ func (m HelpModel) Update(msg tea.Msg) (HelpModel, tea.Cmd) {
 			}
 
 		} else {
-			m.Viewport.Width = m.helpWindowWidth - utils.BoxStyle.GetHorizontalBorderSize()
-			m.Viewport.Height = m.helpWindowHeight - utils.BoxStyle.GetVerticalBorderSize()
+			m.Viewport.SetWidth(m.helpWindowWidth - utils.BoxStyle.GetHorizontalBorderSize())
+			m.Viewport.SetHeight(m.helpWindowHeight - utils.BoxStyle.GetVerticalBorderSize())
 		}
 		return m, nil
 	case tea.KeyMsg:

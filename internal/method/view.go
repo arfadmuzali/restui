@@ -1,9 +1,9 @@
 package method
 
 import (
+	"charm.land/lipgloss/v2"
 	"github.com/arfadmuzali/restui/internal/utils"
-	"github.com/charmbracelet/lipgloss"
-	zone "github.com/lrstanley/bubblezone"
+	zone "github.com/lrstanley/bubblezone/v2"
 )
 
 var GetStyle = lipgloss.

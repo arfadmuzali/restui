@@ -3,12 +3,12 @@ package request
 import (
 	"strings"
 
+	"charm.land/bubbles/v2/table"
+	"charm.land/bubbles/v2/textarea"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
 	"github.com/arfadmuzali/restui/internal/utils"
-	"github.com/charmbracelet/bubbles/table"
-	"github.com/charmbracelet/bubbles/textarea"
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	zone "github.com/lrstanley/bubblezone"
+	zone "github.com/lrstanley/bubblezone/v2"
 )
 
 func (m RequestModel) Init() tea.Cmd {
@@ -26,22 +26,22 @@ func (m RequestModel) updateTextArea(msg tea.Msg) (textarea.Model, tea.Cmd) {
 		switch msg.String() {
 		case `"`:
 			m.TextArea.InsertString(`""`)
-			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
 		case `'`:
 			m.TextArea.InsertString(`'`)
-			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
 		case "`":
 			m.TextArea.InsertString("`")
-			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
 		case `(`:
 			m.TextArea.InsertString(`()`)
-			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
 		case `[`:
 			m.TextArea.InsertString(`[]`)
-			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
 		case `{`:
 			m.TextArea.InsertString(`{}`)
-			m.TextArea.SetCursor(m.TextArea.LineInfo().CharOffset - 1)
+			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
 		case "backspace":
 			line := strings.Split(m.TextArea.Value(), "\n")[m.TextArea.Line()]
 
@@ -76,10 +76,10 @@ func (m RequestModel) updateTextArea(msg tea.Msg) (textarea.Model, tea.Cmd) {
 
 			if current == line[col-1] && current == line[col] {
 				m.TextArea, cmd = m.TextArea.Update(
-					tea.KeyMsg{Type: tea.KeyBackspace},
+					tea.KeyBackspace,
 				)
 				m.TextArea, cmd = m.TextArea.Update(
-					tea.KeyMsg{Type: tea.KeyDelete},
+					tea.KeyDelete,
 				)
 				break
 			}
@@ -172,14 +172,16 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 	case tea.WindowSizeMsg:
 
 		//BUG: i dont know why but if i add 1 to response section when window width it wont error
-		bugAddon := 0
-		if msg.Width%10 == 5 {
-			bugAddon = 1
-		}
+		// bugAddon := 0
+		// if msg.Width%10 == 5 {
+		// 	bugAddon = 1
+		// }
+
 		// minus 1 for the tabs
 		m.RequestHeight = msg.Height*90/100 - utils.BoxStyle.GetVerticalBorderSize() - 1
 
-		m.RequestWidth = msg.Width*40/100 - utils.BoxStyle.GetHorizontalBorderSize() - bugAddon
+		// m.RequestWidth = msg.Width*40/100 - utils.BoxStyle.GetHorizontalBorderSize() - bugAddon
+		m.RequestWidth = msg.Width*40/100 - utils.BoxStyle.GetHorizontalBorderSize()
 
 		m.TextArea.SetWidth(m.RequestWidth)
 		m.TextArea.SetHeight(m.RequestHeight)
@@ -190,23 +192,29 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 		})
 		m.TableHeaders.SetHeight(m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1)
 
-		m.ValueInput.Width = m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1
+		// BUG:
+		// m.ValueInput.SetWidth(m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1)
 
-		m.KeyInput.Width = m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1
+		m.ValueInput.SetWidth(m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize())
+		// BUG:
+		// m.KeyInput.SetWidth(m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1)
+
+		m.KeyInput.SetWidth(m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize())
+
 		if !m.ViewportReady {
-			m.Viewport = viewport.New(m.RequestWidth, m.RequestHeight)
+			m.Viewport = viewport.New(viewport.WithWidth(m.RequestWidth), viewport.WithHeight(m.RequestHeight))
 			m.ViewportReady = true
 			m.Viewport.SetContent(m.TextArea.View())
 		} else {
-			m.Viewport.Width = m.RequestWidth
-			m.Viewport.Height = m.RequestHeight
+			m.Viewport.SetWidth(m.RequestWidth)
+			m.Viewport.SetHeight(m.RequestHeight)
 		}
 		switch m.FocusedTab {
 		case Body:
-			m.Viewport.Height = m.RequestHeight
+			m.Viewport.SetHeight(m.RequestHeight)
 		case Headers:
 			// minus border vertical + 1 for input header
-			m.Viewport.Height = m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1
+			m.Viewport.SetHeight(m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1)
 		}
 
 	case tea.KeyMsg:
@@ -304,7 +312,7 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 			return m, nil
 		}
 
-	case tea.MouseMsg:
+	case tea.MouseReleaseMsg:
 		m.Hovered = zone.Get("request").InBounds(msg)
 
 		if m.Hovered && m.FocusedTab == Body {
@@ -321,7 +329,7 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 			)
 		}
 
-		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonRight {
+		if msg.Button == tea.MouseRight {
 			if m.Hovered {
 				temp := []Header{}
 				for _, header := range m.Headers {
@@ -332,7 +340,7 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 				m.Headers = temp
 			}
 		}
-		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft {
+		if msg.Button == tea.MouseLeft {
 
 			if zone.Get("keyInputHeader").InBounds(msg) {
 				m.KeyInput.Focus()
@@ -351,11 +359,11 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 				m.Hovered = true
 				m.TextArea.Focus()
 				m.Viewport.SetContent(m.TextArea.View())
-				m.Viewport.Height = m.RequestHeight
+				m.Viewport.SetHeight(m.RequestHeight)
 			} else if zone.Get("requestHeaders").InBounds(msg) {
 				m.FocusedTab = Headers
 				m.Hovered = true
-				m.Viewport.Height = m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1
+				m.Viewport.SetHeight(m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1)
 				m.Viewport.SetContent(
 					m.TableHeaders.View(),
 				)

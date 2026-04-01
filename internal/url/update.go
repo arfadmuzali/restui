@@ -1,9 +1,9 @@
 package url
 
 import (
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	zone "github.com/lrstanley/bubblezone"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
+	zone "github.com/lrstanley/bubblezone/v2"
 )
 
 func (m UrlModel) Init() tea.Cmd {
@@ -12,16 +12,16 @@ func (m UrlModel) Init() tea.Cmd {
 func (m UrlModel) Update(msg tea.Msg) (UrlModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.UrlInput.Width = msg.Width * 76 / 100
-	case tea.MouseMsg:
-		if msg.Action == tea.MouseActionRelease && msg.Button == tea.MouseButtonLeft {
+		m.UrlInput.SetWidth(msg.Width * 76 / 100)
+	case tea.MouseReleaseMsg:
+		if msg.Button == tea.MouseLeft {
 			if zone.Get("url").InBounds(msg) {
 				m.UrlInput.Focus()
 				if m.UrlInput.Focused() {
 					cursorPosition := msg.X - zone.Get("url").StartX
 					// TODO: FIX this bug: the bug is when the cursor > urlInputWIdth the click cursor doesnt work correctly
-					if m.UrlInput.Width < m.UrlInput.Position() {
-						m.UrlInput.SetCursor(m.UrlInput.Position() - m.UrlInput.Width + cursorPosition)
+					if m.UrlInput.Width() < m.UrlInput.Position() {
+						m.UrlInput.SetCursor(m.UrlInput.Position() - m.UrlInput.Width() + cursorPosition)
 					} else {
 						m.UrlInput.SetCursor(cursorPosition)
 					}

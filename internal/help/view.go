@@ -1,8 +1,8 @@
 package help
 
 import (
+	"charm.land/lipgloss/v2"
 	"github.com/arfadmuzali/restui/internal/utils"
-	"github.com/charmbracelet/lipgloss"
 )
 
 func (m HelpModel) View() string {

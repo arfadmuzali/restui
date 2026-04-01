@@ -3,7 +3,7 @@ package response
 import (
 	"net/http"
 
-	"github.com/charmbracelet/bubbles/viewport"
+	"charm.land/bubbles/v2/viewport"
 )
 
 type ResponseTab int

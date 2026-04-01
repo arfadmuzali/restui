@@ -1,10 +1,10 @@
 package restui
 
 import (
+	tea "charm.land/bubbletea/v2"
 	"github.com/arfadmuzali/restui/internal/app"
 	"github.com/arfadmuzali/restui/internal/config"
-	tea "github.com/charmbracelet/bubbletea"
-	zone "github.com/lrstanley/bubblezone"
+	zone "github.com/lrstanley/bubblezone/v2"
 )
 
 func Execute() error {
@@ -16,7 +16,7 @@ func Execute() error {
 	zone.NewGlobal()
 	defer zone.Close()
 	p := app.InitModel()
-	_, err = tea.NewProgram(p, tea.WithAltScreen(), tea.WithMouseCellMotion()).Run()
+	_, err = tea.NewProgram(p).Run()
 
 	return err
 }

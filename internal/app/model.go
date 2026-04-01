@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
+	"charm.land/bubbles/v2/spinner"
+	tea "charm.land/bubbletea/v2"
 	"github.com/arfadmuzali/restui/internal/help"
 	"github.com/arfadmuzali/restui/internal/hint"
 	"github.com/arfadmuzali/restui/internal/method"
 	"github.com/arfadmuzali/restui/internal/request"
 	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/arfadmuzali/restui/internal/url"
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 type Model struct {

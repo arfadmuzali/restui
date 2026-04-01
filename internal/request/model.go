@@ -1,14 +1,14 @@
 package request
 
 import (
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/table"
+	"charm.land/bubbles/v2/textarea"
+	"charm.land/bubbles/v2/textinput"
+	"charm.land/bubbles/v2/viewport"
+	"charm.land/lipgloss/v2"
 	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/arfadmuzali/restui/internal/version"
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/table"
-	"github.com/charmbracelet/bubbles/textarea"
-	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/charmbracelet/bubbles/viewport"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type RequestTab int
@@ -58,7 +58,7 @@ func New() RequestModel {
 	ta.ShowLineNumbers = true
 	ta.KeyMap.WordBackward.SetKeys("alt+left", "ctrl+left")
 	ta.KeyMap.WordForward.SetKeys("alt+right", "ctrl+right")
-	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
+	// ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	ta.Prompt = ""
 	ta.SetWidth(20)
 

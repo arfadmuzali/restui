@@ -4,8 +4,8 @@ import (
 	"math"
 	"strings"
 
+	"charm.land/lipgloss/v2"
 	"github.com/TylerBrock/colorjson"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/fatih/color"
 )
 

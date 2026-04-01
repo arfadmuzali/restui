@@ -1,8 +1,8 @@
 package method
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
-	zone "github.com/lrstanley/bubblezone"
+	tea "charm.land/bubbletea/v2"
+	zone "github.com/lrstanley/bubblezone/v2"
 )
 
 func (m MethodModel) Init() tea.Cmd {

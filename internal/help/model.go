@@ -1,6 +1,6 @@
 package help
 
-import "github.com/charmbracelet/bubbles/viewport"
+import "charm.land/bubbles/v2/viewport"
 
 type HelpModel struct {
 	OverlayActive    bool

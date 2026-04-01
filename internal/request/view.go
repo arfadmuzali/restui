@@ -1,8 +1,8 @@
 package request
 
 import (
-	"github.com/charmbracelet/lipgloss"
-	zone "github.com/lrstanley/bubblezone"
+	"charm.land/lipgloss/v2"
+	zone "github.com/lrstanley/bubblezone/v2"
 )
 
 func (m RequestModel) View() string {

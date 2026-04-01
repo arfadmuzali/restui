@@ -4,18 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 
+	"charm.land/bubbles/v2/spinner"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/arfadmuzali/restui/internal/config"
 	methodModel "github.com/arfadmuzali/restui/internal/method"
 	"github.com/arfadmuzali/restui/internal/request"
 	"github.com/arfadmuzali/restui/internal/response"
 	"github.com/arfadmuzali/restui/internal/utils"
 	"github.com/atotto/clipboard"
-	"github.com/charmbracelet/bubbles/spinner"
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
-	zone "github.com/lrstanley/bubblezone"
+	zone "github.com/lrstanley/bubblezone/v2"
 )
 
 func (m MainModel) Init() tea.Cmd {
@@ -43,12 +43,12 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 		if !m.BufferModalModel.ViewportReady {
 			m.BufferModalModel.ViewportReady = true
 			m.BufferModalModel.Viewport = viewport.New(
-				m.WindowWidth*50/100-utils.BoxStyle.GetHorizontalBorderSize(),
-				m.WindowHeight*85/100-utils.BoxStyle.GetHorizontalBorderSize(),
+				viewport.WithWidth(m.WindowWidth*50/100-utils.BoxStyle.GetHorizontalBorderSize()),
+				viewport.WithHeight(m.WindowHeight*85/100-utils.BoxStyle.GetHorizontalBorderSize()),
 			)
 		} else {
-			m.BufferModalModel.Viewport.Width = m.WindowWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize()
-			m.BufferModalModel.Viewport.Height = m.WindowHeight*85/100 - utils.BoxStyle.GetVerticalBorderSize()
+			m.BufferModalModel.Viewport.SetWidth(m.WindowWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize())
+			m.BufferModalModel.Viewport.SetHeight(m.WindowHeight*85/100 - utils.BoxStyle.GetVerticalBorderSize())
 		}
 		return m, nil
 	case tea.KeyMsg:
@@ -56,7 +56,7 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 		case "ctrl+n":
 			buffer := CreateNewBuffer()
 			if m.BufferModalModel.OverlayActive {
-				return m, tea.WindowSize()
+				return m, tea.RequestWindowSize
 			}
 
 			m.IndexBuffers[buffer.Id] = len(m.Buffers)
@@ -64,7 +64,7 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 
 			m = m.ChangeBuffer(buffer.Id)
 
-			return m, tea.WindowSize()
+			return m, tea.RequestWindowSize
 		case "ctrl+pgup":
 			index := m.IndexBuffers[m.ActiveBufferId]
 			if index < len(m.Buffers)-1 {
@@ -74,7 +74,7 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 			if index == len(m.Buffers)-1 {
 				m = m.ChangeBuffer(m.Buffers[0].Id)
 			}
-			cmds = append(cmds, tea.WindowSize())
+			cmds = append(cmds, tea.RequestWindowSize)
 		case "ctrl+pgdown":
 			index := m.IndexBuffers[m.ActiveBufferId]
 			if index > 0 {
@@ -84,7 +84,7 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 				m = m.ChangeBuffer(m.Buffers[len(m.Buffers)-1].Id)
 			}
 
-			cmds = append(cmds, tea.WindowSize())
+			cmds = append(cmds, tea.RequestWindowSize)
 		case "ctrl+x":
 			m, cmd = m.DeleteBuffer(m.ActiveBufferId)
 
@@ -212,8 +212,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, m.HandleHttpRequest
 
-	case tea.MouseMsg:
-		if msg.Button == tea.MouseButtonLeft && msg.Action == tea.MouseActionRelease {
+	case tea.MouseReleaseMsg:
+		if msg.Button == tea.MouseLeft {
 			if zone.Get("method").InBounds(msg) {
 				m.MethodModel.OverlayActive = !m.MethodModel.OverlayActive
 			} else if zone.Get("send").InBounds(msg) {
@@ -262,12 +262,12 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.RequestModel.Hovered = true
 			m.RequestModel.TextArea.Focus()
 			m.RequestModel.Viewport.SetContent(m.RequestModel.TextArea.View())
-			m.RequestModel.Viewport.Height = m.RequestModel.RequestHeight
+			m.RequestModel.Viewport.SetHeight(m.RequestModel.RequestHeight)
 		case "ctrl+h":
 			m = m.BlurAll()
 			m.RequestModel.FocusedTab = request.Headers
 			m.RequestModel.Hovered = true
-			m.RequestModel.Viewport.Height = m.RequestModel.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1
+			m.RequestModel.Viewport.SetHeight(m.RequestModel.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1)
 			m.RequestModel.Viewport.SetContent(
 				m.RequestModel.TableHeaders.View(),
 			)
