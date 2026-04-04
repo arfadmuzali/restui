@@ -92,7 +92,7 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 
 		case "ctrl+c":
 			return m, tea.Quit
-		case "ctrl+o":
+		case "ctrl+o", "ctrl+m":
 			m.MethodModel.OverlayActive = !m.MethodModel.OverlayActive
 			m = m.BlurAll()
 			return m, nil
@@ -230,7 +230,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.UrlModel.UrlInput.Focused() {
 				return m.StartRequest()
 			}
-		case "alt+enter":
+		case "alt+enter", "ctrl+enter":
 			return m.StartRequest()
 		// WARN: i think this shortcut will cause bugs in the future
 		case "ctrl+l":
