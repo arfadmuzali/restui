@@ -7,5 +7,12 @@ func (m HintModel) Init() tea.Cmd {
 }
 
 func (m HintModel) Update(msg tea.Msg) (HintModel, tea.Cmd) {
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.Help.SetWidth(msg.Width)
+		return m, nil
+	}
+
 	return m, nil
 }

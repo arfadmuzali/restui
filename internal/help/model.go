@@ -14,14 +14,14 @@ var Guide = `
 # Common Keybinds
 - **ctrl+c**: Exit
 - **ESC**: Close modal/popup
-- **alt+enter/ctrl+enter**: Send request
+- **ctrl+enter/alt+enter**: Send request
 - **F1**: Help
 
 # Request Keybinds
 - **ctrl+l**: Go to URL
 - **ctrl+b**: Go to request body
 - **ctrl+f**: Format request body (JSON only)
-- **ctrl+o/ctrl+m**: Toggle method modal/popup
+- **ctrl+m/ctrl+o**: Toggle method modal/popup
     - **k/up**: Navigate up in method modal/popup
     - **j/down**: Navigate down in method modal/popup
     - **g**: Switch to GET method
