@@ -39,6 +39,13 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 		if !m.ViewportReady {
 			m.Viewport = viewport.New(viewport.WithWidth(m.ResponseWidth), viewport.WithHeight(m.ResponseHeight))
 			m.ViewportReady = true
+
+			fullMessage := lipgloss.JoinVertical(lipgloss.Center,
+				"No response yet",
+				"Send request to see the response",
+			)
+			s := lipgloss.NewStyle().Align(lipgloss.Center, lipgloss.Center).Width(m.Viewport.Width()).Height(m.Viewport.Height()).Render(fullMessage)
+			m.Viewport.SetContent(s)
 		} else {
 			m.Viewport.SetWidth(m.ResponseWidth)
 			m.Viewport.SetHeight(m.ResponseHeight)
