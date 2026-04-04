@@ -1,6 +1,9 @@
 package restui
 
 import (
+	"log"
+	"os"
+
 	tea "charm.land/bubbletea/v2"
 	"github.com/arfadmuzali/restui/internal/app"
 	"github.com/arfadmuzali/restui/internal/config"
@@ -8,6 +11,13 @@ import (
 )
 
 func Execute() error {
+	if len(os.Getenv("DEBUG")) > 0 {
+		f, err := tea.LogToFile("debug.log", "debug")
+		if err != nil {
+			log.Fatal("fatal:", err)
+		}
+		defer f.Close()
+	}
 	err := config.ConfigInitialization()
 	if err != nil {
 		return err

@@ -35,7 +35,7 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 			addon = 1
 		}
 
-		m.ResponseWidth = msg.Width*60/100 - utils.BoxStyle.GetHorizontalBorderSize() + addon
+		m.ResponseWidth = msg.Width*60/100 + addon
 		if !m.ViewportReady {
 			m.Viewport = viewport.New(viewport.WithWidth(m.ResponseWidth), viewport.WithHeight(m.ResponseHeight))
 			m.ViewportReady = true

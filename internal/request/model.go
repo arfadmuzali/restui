@@ -54,13 +54,21 @@ type RequestModel struct {
 
 func New() RequestModel {
 	ta := textarea.New()
-	ta.Placeholder = "Enter your request body, please define your Content-Type on Headers section"
+	ta.Placeholder = "Enter request body"
 	ta.ShowLineNumbers = true
+	// ta.SetVirtualCursor(false)
+	isDark := true
+	defaultStyle := textarea.DefaultStyles(isDark)
+	lightDark := lipgloss.LightDark(isDark)
+	defaultStyle.Focused.CursorLine = lipgloss.NewStyle().Foreground(lightDark(lipgloss.Color("245"), lipgloss.Color("7")))
+	defaultStyle.Focused.LineNumber = lipgloss.NewStyle().Foreground(lightDark(lipgloss.Color("249"), lipgloss.Color("7")))
+
+	ta.SetStyles(defaultStyle)
+
 	ta.KeyMap.WordBackward.SetKeys("alt+left", "ctrl+left")
 	ta.KeyMap.WordForward.SetKeys("alt+right", "ctrl+right")
 	// ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	ta.Prompt = ""
-	ta.SetWidth(20)
 
 	keyInput := textinput.New()
 	keyInput.Prompt = ""

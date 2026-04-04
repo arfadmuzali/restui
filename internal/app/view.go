@@ -172,7 +172,8 @@ func body(m MainModel) string {
 
 	// minus 1 for the tabs
 	left, right := utils.PrintHorizontalBorder(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1, m.ResponseModel.Viewport.TotalLineCount(), m.ResponseModel.Viewport.ScrollPercent())
-	top, bottom := utils.PrintVerticalBorder(bodyWidth*60/100 + addon)
+	// BUG: + utils.boxStyle... i dont know why i have to add ts
+	top, bottom := utils.PrintVerticalBorder(bodyWidth*60/100 + utils.BoxStyle.GetHorizontalBorderSize() + addon)
 
 	content := lipgloss.JoinVertical(
 		lipgloss.Top,
@@ -190,8 +191,8 @@ func body(m MainModel) string {
 	if m.ResponseModel.IsLoading {
 		responseContent = lipgloss.NewStyle().
 			// minus 1 for the tabs
-			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
-			Width(bodyWidth*60/100-utils.BoxStyle.GetHorizontalBorderSize()+addon).
+			Height(bodyHeight-1).
+			Width(bodyWidth*60/100+utils.BoxStyle.GetHorizontalBorderSize()+addon).
 			Align(lipgloss.Center, lipgloss.Center).
 			BorderForeground(lipgloss.Color(responseHoveredColor)).
 			Border(lipgloss.RoundedBorder()).Render(m.spinner.View())

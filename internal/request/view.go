@@ -17,12 +17,14 @@ func (m RequestModel) View() string {
 			lipgloss.Left,
 			m.Viewport.View(),
 			lipgloss.JoinHorizontal(
-				lipgloss.Top,
+				lipgloss.Center,
 				zone.Mark("keyInputHeader",
-					lipgloss.NewStyle().Width(m.RequestWidth*50/100-2).Border(lipgloss.RoundedBorder()).Render(m.KeyInput.View()),
+					//BUG: i dont know why i have to -3
+					lipgloss.NewStyle().Width(m.KeyInput.Width()+3).Border(lipgloss.RoundedBorder()).Render(m.KeyInput.View()),
 				),
 				zone.Mark("valueInputHeader",
-					lipgloss.NewStyle().Width(m.RequestWidth*50/100-2).Border(lipgloss.RoundedBorder()).Render(m.ValueInput.View()),
+					//BUG: i dont know why i have to -3
+					lipgloss.NewStyle().Width(m.ValueInput.Width()+3).Border(lipgloss.RoundedBorder()).Render(m.ValueInput.View()),
 				),
 			),
 		)

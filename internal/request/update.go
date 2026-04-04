@@ -12,7 +12,7 @@ import (
 )
 
 func (m RequestModel) Init() tea.Cmd {
-	return textarea.Blink
+	return tea.Batch(textarea.Blink, tea.RequestBackgroundColor)
 }
 
 func (m RequestModel) updateTextArea(msg tea.Msg) (textarea.Model, tea.Cmd) {
@@ -28,10 +28,10 @@ func (m RequestModel) updateTextArea(msg tea.Msg) (textarea.Model, tea.Cmd) {
 			m.TextArea.InsertString(`""`)
 			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
 		case `'`:
-			m.TextArea.InsertString(`'`)
+			m.TextArea.InsertString(`''`)
 			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
 		case "`":
-			m.TextArea.InsertString("`")
+			m.TextArea.InsertString("``")
 			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
 		case `(`:
 			m.TextArea.InsertString(`()`)
@@ -44,10 +44,10 @@ func (m RequestModel) updateTextArea(msg tea.Msg) (textarea.Model, tea.Cmd) {
 			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
 		case "backspace":
 			line := strings.Split(m.TextArea.Value(), "\n")[m.TextArea.Line()]
-
 			lineInfo := m.TextArea.LineInfo()
+
 			// col is cursor position
-			col := lineInfo.CharOffset
+			col := m.TextArea.Column()
 
 			if col == 0 {
 				m.TextArea, cmd = m.TextArea.Update(msg)
@@ -64,22 +64,17 @@ func (m RequestModel) updateTextArea(msg tea.Msg) (textarea.Model, tea.Cmd) {
 				current == '"' ||
 				current == '\''
 
-			if !isPairChar {
+			if !isPairChar || col == lineInfo.CharWidth-1 {
 				m.TextArea, cmd = m.TextArea.Update(msg)
 				break
 			}
 
-			if col == lineInfo.CharWidth-1 {
-				m.TextArea, cmd = m.TextArea.Update(msg)
-				break
-			}
-
-			if current == line[col-1] && current == line[col] {
+			if current == line[col] {
 				m.TextArea, cmd = m.TextArea.Update(
-					tea.KeyBackspace,
+					tea.KeyPressMsg{Text: "backspace"},
 				)
 				m.TextArea, cmd = m.TextArea.Update(
-					tea.KeyDelete,
+					tea.KeyPressMsg{Text: "delete"},
 				)
 				break
 			}
@@ -183,26 +178,26 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 		// m.RequestWidth = msg.Width*40/100 - utils.BoxStyle.GetHorizontalBorderSize() - bugAddon
 		m.RequestWidth = msg.Width*40/100 - utils.BoxStyle.GetHorizontalBorderSize()
 
-		m.TextArea.SetWidth(m.RequestWidth)
+		m.TextArea.SetWidth(m.RequestWidth - 2)
 		m.TextArea.SetHeight(m.RequestHeight)
 
 		m.TableHeaders.SetColumns([]table.Column{
-			{Title: "Key", Width: m.RequestWidth * 50 / 100},
-			{Title: "Value", Width: m.RequestWidth * 50 / 100},
+			//BUG: i dont know why i have to -3
+			{Title: "Key", Width: m.RequestWidth*50/100 - 3},
+			{Title: "Value", Width: m.RequestWidth*50/100 - 3},
 		})
 		m.TableHeaders.SetHeight(m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1)
+		m.TableHeaders.SetWidth(m.RequestWidth)
 
-		// BUG:
-		// m.ValueInput.SetWidth(m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1)
+		// BUG:i dont know why i have to -4
+		m.ValueInput.SetWidth(m.RequestWidth*50/100 - 4)
 
-		m.ValueInput.SetWidth(m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize())
-		// BUG:
-		// m.KeyInput.SetWidth(m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize() - 1)
-
-		m.KeyInput.SetWidth(m.RequestWidth*50/100 - utils.BoxStyle.GetHorizontalBorderSize())
+		// BUG:i dont know why i have to -4
+		m.KeyInput.SetWidth(m.RequestWidth*50/100 - 4)
 
 		if !m.ViewportReady {
-			m.Viewport = viewport.New(viewport.WithWidth(m.RequestWidth), viewport.WithHeight(m.RequestHeight))
+			// - 2 for line number
+			m.Viewport = viewport.New(viewport.WithWidth(m.RequestWidth-2), viewport.WithHeight(m.RequestHeight))
 			m.ViewportReady = true
 			m.Viewport.SetContent(m.TextArea.View())
 		} else {
