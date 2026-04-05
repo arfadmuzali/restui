@@ -56,7 +56,6 @@ func New() RequestModel {
 	ta := textarea.New()
 	ta.Placeholder = "Enter request body"
 	ta.ShowLineNumbers = true
-	// ta.SetVirtualCursor(false)
 	isDark := true
 	defaultStyle := textarea.DefaultStyles(isDark)
 	lightDark := lipgloss.LightDark(isDark)
@@ -67,7 +66,7 @@ func New() RequestModel {
 
 	ta.KeyMap.WordBackward.SetKeys("alt+left", "ctrl+left")
 	ta.KeyMap.WordForward.SetKeys("alt+right", "ctrl+right")
-	// ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
+	ta.KeyMap.Paste.SetKeys()
 	ta.Prompt = ""
 
 	keyInput := textinput.New()

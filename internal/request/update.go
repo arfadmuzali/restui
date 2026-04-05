@@ -8,6 +8,7 @@ import (
 	"charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
 	"github.com/arfadmuzali/restui/internal/utils"
+	"github.com/atotto/clipboard"
 	zone "github.com/lrstanley/bubblezone/v2"
 )
 
@@ -23,7 +24,14 @@ func (m RequestModel) updateTextArea(msg tea.Msg) (textarea.Model, tea.Cmd) {
 	}
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+
 		switch msg.String() {
+		case "ctrl+v":
+			reg, err := clipboard.ReadAll()
+			if err != nil {
+				return m.TextArea, cmd
+			}
+			m.TextArea.InsertString(reg)
 		case `"`:
 			m.TextArea.InsertString(`""`)
 			m.TextArea.SetCursorColumn(m.TextArea.LineInfo().CharOffset - 1)
