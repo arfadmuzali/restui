@@ -307,7 +307,7 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 			return m, nil
 		}
 
-	case tea.MouseReleaseMsg:
+	case tea.MouseMsg:
 		m.Hovered = zone.Get("request").InBounds(msg)
 
 		if m.Hovered && m.FocusedTab == Body {
@@ -324,7 +324,7 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 			)
 		}
 
-		if msg.Button == tea.MouseRight {
+		if msg.Mouse().Button == tea.MouseRight {
 			if m.Hovered {
 				temp := []Header{}
 				for _, header := range m.Headers {
@@ -335,7 +335,7 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 				m.Headers = temp
 			}
 		}
-		if msg.Button == tea.MouseLeft {
+		if msg.Mouse().Button == tea.MouseLeft {
 
 			if zone.Get("keyInputHeader").InBounds(msg) {
 				m.KeyInput.Focus()

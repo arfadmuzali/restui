@@ -109,9 +109,9 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 		m.Result.Body = wrap.String(s, m.ResponseWidth)
 		m.Viewport.SetContent(m.Result.Body)
 		return m, nil
-	case tea.MouseReleaseMsg:
+	case tea.MouseMsg:
 		m.Hovered = zone.Get("response").InBounds(msg)
-		if msg.Button == tea.MouseLeft {
+		if msg.Mouse().Button == tea.MouseLeft {
 			if zone.Get("responseBody").InBounds(msg) {
 				m.FocusedTab = Body
 				m.Hovered = true
