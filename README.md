@@ -19,8 +19,7 @@ paru -S restui
 ### Using Homebrew 
 
 ```bash
-brew tap arfadmuzali/restui
-brew install restui
+brew install --cask restui
 ```
 
 ### Using Go Install
