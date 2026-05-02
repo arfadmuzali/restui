@@ -80,11 +80,11 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 				contentType = http.DetectContentType(m.Result.Data)
 			}
 
-			if strings.HasPrefix(contentType, "application/json") {
+			if strings.Contains(contentType, "application/json") {
 				var temp any
-				err := json.Unmarshal(msg.Data, &temp)
+				err := json.Unmarshal(m.Result.Data, &temp)
 				if err != nil {
-					s = m.Result.Error.Error()
+					s = string(m.Result.Data)
 					m.Result.Body = wrap.String(s, m.ResponseWidth)
 					m.Viewport.SetContent(m.Result.Body)
 					return m, nil
@@ -92,7 +92,7 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 
 				body, err := utils.Formatter.Marshal(temp)
 				if err != nil {
-					s = m.Result.Error.Error()
+					s = err.Error()
 					m.Result.Body = wrap.String(s, m.ResponseWidth)
 					m.Viewport.SetContent(m.Result.Body)
 					return m, nil
