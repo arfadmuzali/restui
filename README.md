@@ -2,7 +2,14 @@
 
 RESTUI is a Terminal User Interface API client designed for testing HTTP requests directly into your terminal.
 
-![Preview](assets/preview-restui.gif)
+<figure align="center">
+  <img
+    src="assets/preview-restui.gif"
+    alt="Preview"
+    width="840"
+  />
+  <figcaption><em>*The app may look different depending on your terminal theme (i use kitty with kanagawa theme).</em></figcaption>
+</figure>
 
 ## Installation
 
