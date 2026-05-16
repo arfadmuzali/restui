@@ -65,6 +65,16 @@ func (m RequestModel) updateTextArea(msg tea.Msg) (textarea.Model, tea.Cmd) {
 			// current is character before cursor
 			current := line[col-1]
 
+			pair := map[byte]byte{
+				'`':  '`',
+				']':  '[',
+				'}':  '{',
+				')':  '(',
+				'"':  '"',
+				'\'': '\'',
+			}
+
+			// make sure that 'current' is pair character
 			isPairChar := current == '`' ||
 				current == '[' ||
 				current == '{' ||
@@ -77,7 +87,10 @@ func (m RequestModel) updateTextArea(msg tea.Msg) (textarea.Model, tea.Cmd) {
 				break
 			}
 
-			if current == line[col] {
+			// main logic here
+			// maybe there is better way to do this
+			// but as long as it works, idgaf
+			if current == pair[line[col]] {
 				m.TextArea, cmd = m.TextArea.Update(
 					tea.KeyPressMsg{Text: "backspace"},
 				)
