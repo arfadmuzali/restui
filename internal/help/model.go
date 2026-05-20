@@ -13,8 +13,8 @@ type HelpModel struct {
 var Guide = `
 # Common Keybinds
 - **ctrl+c**: Exit
-- **ESC**: Close modal/popup
 - **ctrl+enter/alt+enter**: Send request
+- **ESC**: Close modal/popup or Cancel the request
 - **F1**: Help
 
 # Request Keybinds

@@ -101,7 +101,11 @@ func globalKeyMsg(m MainModel, msg tea.Msg) (MainModel, tea.Cmd) {
 			m = m.BlurAll()
 			return m, nil
 		case "esc":
-			m.BufferModalModel.OverlayActive = false
+			if m.BufferModalModel.OverlayActive == true || m.HelpModel.OverlayActive == true || m.MethodModel.OverlayActive == true {
+				m.BufferModalModel.OverlayActive = false
+			} else if m.ResponseModel.IsLoading && m.CancelRequest != nil {
+				m.CancelRequest()
+			}
 		case "ctrl+t":
 			m.BufferModalModel.OverlayActive = !m.BufferModalModel.OverlayActive
 			m.BufferModalModel.BufferHovered = m.ActiveBufferId
@@ -184,13 +188,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.HelpModel, cmd = m.HelpModel.Update(msg)
 	cmds = append(cmds, cmd)
 
-	if m.MethodModel.OverlayActive || m.HelpModel.OverlayActive || m.BufferModalModel.OverlayActive {
-		return m, tea.Batch(cmds...)
-	}
-
-	m.HintModel, cmd = m.HintModel.Update(msg)
-	cmds = append(cmds, cmd)
-
 	m.ResponseModel, cmd = m.ResponseModel.Update(msg)
 	cmds = append(cmds, cmd)
 
@@ -201,6 +198,16 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.spinner, cmd = m.spinner.Update(msg)
 		}
 		return m, cmd
+	}
+
+	if m.MethodModel.OverlayActive || m.HelpModel.OverlayActive || m.BufferModalModel.OverlayActive {
+		return m, tea.Batch(cmds...)
+	}
+
+	m.HintModel, cmd = m.HintModel.Update(msg)
+	cmds = append(cmds, cmd)
+
+	switch msg := msg.(type) {
 
 	case response.IsLoadingMsg:
 		// Add suggestion

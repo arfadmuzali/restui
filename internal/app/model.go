@@ -2,6 +2,8 @@ package app
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"strconv"
 
 	"io"
@@ -38,6 +40,8 @@ type MainModel struct {
 	Buffers          []Buffer
 	IndexBuffers     map[string]int
 	BufferModalModel BufferModalModel
+	CancelContext    context.Context
+	CancelRequest    context.CancelFunc
 }
 
 func InitModel() MainModel {
@@ -79,6 +83,12 @@ func (m MainModel) StartRequest() (MainModel, tea.Cmd) {
 	}
 	m.ResponseModel.IsLoading = true
 
+	ctx := context.Background()
+
+	cancelCtx, cancel := context.WithTimeout(ctx, time.Second*60)
+	m.CancelContext = cancelCtx
+	m.CancelRequest = cancel
+
 	return m, tea.Batch(func() tea.Msg {
 		return response.IsLoadingMsg(true)
 	}, m.spinner.Tick)
@@ -86,7 +96,8 @@ func (m MainModel) StartRequest() (MainModel, tea.Cmd) {
 
 func (m MainModel) HandleHttpRequest() tea.Msg {
 	client := &http.Client{
-		Timeout:   60 * time.Second,
+		// move timeout to context
+		// Timeout:   60 * time.Second,
 		Transport: &http.Transport{},
 	}
 
@@ -114,19 +125,13 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 		headers["Content-Type"] = "application/json"
 	}
 
-	// Validate RequestBody
-	// var js any
-	// testerror := json.Unmarshal([]byte(m.RequestModel.TextArea.Value()), &js)
+	req, err := http.NewRequestWithContext(m.CancelContext, m.MethodModel.ActiveState.String(), url, requestBody)
+	defer m.CancelRequest()
+	m.CancelContext.Done()
 
-	// if testerror != nil &&
-	// 	headers["Content-Type"] == "application/json" &&
-	// 	m.MethodModel.ActiveState != method.GET {
-	// 	return response.ResultMsg(response.ResultMsg{Data: nil, Error: fmt.Errorf("Something wrong with your request body\n%s", testerror.Error()), Headers: responseHeader, StatusCode: 400})
-	// }
-
-	req, err := http.NewRequest(m.MethodModel.ActiveState.String(), url, requestBody)
 	if err != nil {
 		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: 404})
+
 	}
 
 	headers["Host"] = req.Host
@@ -140,7 +145,14 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 	responseTime := time.Since(start)
 
 	if err != nil {
-		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: 0})
+
+		if errors.Is(err, context.Canceled) {
+			return response.ResultMsg(response.ResultMsg{Data: nil, Error: errors.New("Request cancelled"), Headers: responseHeader, StatusCode: 0})
+		} else if errors.Is(err, context.DeadlineExceeded) {
+			return response.ResultMsg(response.ResultMsg{Data: nil, Error: errors.New("Request cancelled because it took so long"), Headers: responseHeader, StatusCode: 0})
+		} else {
+			return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: 0})
+		}
 	}
 	responseHeader = resp.Header
 
