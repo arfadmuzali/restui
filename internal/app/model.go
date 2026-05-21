@@ -127,7 +127,6 @@ func (m MainModel) HandleHttpRequest() tea.Msg {
 
 	req, err := http.NewRequestWithContext(m.CancelContext, m.MethodModel.ActiveState.String(), url, requestBody)
 	defer m.CancelRequest()
-	defer m.CancelContext.Done()
 
 	if err != nil {
 		return response.ResultMsg(response.ResultMsg{Data: nil, Error: err, Headers: responseHeader, StatusCode: 0})
