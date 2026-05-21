@@ -72,12 +72,13 @@ C:\Users\<USERNAME>\go\bin
 ```
 
 
-## Next Features
+## What i am planning
 
 Here is what i am planning to:
 
 - [x] Suggestion when tping on URL
 - [x] Buffers/Tabs manager
+- [ ] Fix the inconsistent behavior across different screen sizes
 - [ ] Cookies section
 - [ ] Websocket
 
