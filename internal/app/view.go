@@ -201,7 +201,7 @@ func body(m MainModel) string {
 	}
 
 	var responseTabs []string
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 2; i++ {
 		focusedStyle := lipgloss.NewStyle().Padding(0, 1).Foreground(lipgloss.Color(utils.BlueColor))
 
 		switch i {

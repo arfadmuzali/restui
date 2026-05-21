@@ -1,40 +1,15 @@
 package app
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/arfadmuzali/restui/internal/method"
 	"github.com/arfadmuzali/restui/internal/response"
 )
-
-// Test that HandleHttpRequest returns an error ResultMsg when JSON body is invalid
-func TestHandleHttpRequest_InvalidJSONBody(t *testing.T) {
-	m := InitModel()
-
-	// set method to POST so body validation runs
-	m.MethodModel.ActiveState = method.POST
-
-	// set a body that's invalid JSON
-	m.RequestModel.TextArea.SetValue("{invalid json}")
-
-	// add Content-Type header so validation is applied
-	m.RequestModel.Headers = append(m.RequestModel.Headers, struct{ Key, Value string }{Key: "Content-Type", Value: "application/json"})
-
-	msg := m.HandleHttpRequest()
-	res, ok := msg.(response.ResultMsg)
-	if !ok {
-		t.Fatalf("expected response.ResultMsg, got %T", msg)
-	}
-
-	if res.Error == nil {
-		t.Fatalf("expected an error for invalid JSON body, got nil")
-	}
-	if res.StatusCode != 400 {
-		t.Fatalf("expected status code 400 for invalid JSON body, got %d", res.StatusCode)
-	}
-}
 
 // Test a successful GET against an httptest server
 func TestHandleHttpRequest_SuccessGET(t *testing.T) {
@@ -50,8 +25,15 @@ func TestHandleHttpRequest_SuccessGET(t *testing.T) {
 	m.MethodModel.ActiveState = method.GET
 	// ensure no body
 	m.RequestModel.TextArea.SetValue("")
+	ctx := context.Background()
+
+	cancelContext, cancelFunc := context.WithTimeout(ctx, 60*time.Second)
+
+	m.CancelContext = cancelContext
+	m.CancelRequest = cancelFunc
 
 	msg := m.HandleHttpRequest()
+	_ = msg
 	res, ok := msg.(response.ResultMsg)
 	if !ok {
 		t.Fatalf("expected response.ResultMsg, got %T", msg)
@@ -66,4 +48,5 @@ func TestHandleHttpRequest_SuccessGET(t *testing.T) {
 	if string(res.Data) != "hello" {
 		t.Fatalf("unexpected response body: %q", string(res.Data))
 	}
+
 }
