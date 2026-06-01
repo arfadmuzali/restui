@@ -1,6 +1,7 @@
 package request
 
 import (
+	"math"
 	"strings"
 
 	"charm.land/bubbles/v2/table"
@@ -196,25 +197,28 @@ func (m RequestModel) Update(msg tea.Msg) (RequestModel, tea.Cmd) {
 		// minus 1 for the tabs
 		m.RequestHeight = msg.Height*90/100 - utils.BoxStyle.GetVerticalBorderSize() - 1
 
-		// m.RequestWidth = msg.Width*40/100 - utils.BoxStyle.GetHorizontalBorderSize() - bugAddon
-		m.RequestWidth = msg.Width*40/100 - utils.BoxStyle.GetHorizontalBorderSize()
+		// compute request outer width using rounded split
+		borderH := utils.BoxStyle.GetHorizontalBorderSize()
+		leftOuter := int(math.Round(float64(msg.Width)*0.4)) - borderH
+		leftOuter = max(1, leftOuter)
+		m.RequestWidth = leftOuter
 
 		m.TextArea.SetWidth(m.RequestWidth - 2)
 		m.TextArea.SetHeight(m.RequestHeight)
 
+		// set table and inputs sizes based on the computed request width
+		colWidth := int(math.Round(float64(m.RequestWidth) * 0.5))
+		colWidth = max(1, colWidth)
 		m.TableHeaders.SetColumns([]table.Column{
-			//BUG: i dont know why i have to -3
-			{Title: "Key", Width: m.RequestWidth*50/100 - 3},
-			{Title: "Value", Width: m.RequestWidth*50/100 - 3},
+			{Title: "Key", Width: colWidth - 3},
+			{Title: "Value", Width: colWidth - 3},
 		})
 		m.TableHeaders.SetHeight(m.RequestHeight - utils.BoxStyle.GetVerticalBorderSize() - 1)
 		m.TableHeaders.SetWidth(m.RequestWidth)
 
-		// BUG:i dont know why i have to -4
-		m.ValueInput.SetWidth(m.RequestWidth*50/100 - 4)
-
-		// BUG:i dont know why i have to -4
-		m.KeyInput.SetWidth(m.RequestWidth*50/100 - 4)
+		// inputs widths
+		m.ValueInput.SetWidth(colWidth - 4)
+		m.KeyInput.SetWidth(colWidth - 4)
 
 		if !m.ViewportReady {
 			// - 2 for line number

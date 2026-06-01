@@ -3,6 +3,7 @@ package response
 import (
 	"encoding/json"
 	"errors"
+	"math"
 	"net/http"
 	"net/url"
 	"sort"
@@ -30,12 +31,18 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 		// minus 1 for text header and for RequestTime
 		m.ResponseHeight = msg.Height*90/100 - utils.BoxStyle.GetVerticalBorderSize() - 1 - 1
 
-		var addon int
-		if msg.Width%10 != 0 {
-			addon = 1
-		}
+		// Use rounded splits so left + right == total width
+		borderH := utils.BoxStyle.GetHorizontalBorderSize()
+		leftOuter := int(math.Round(float64(msg.Width)*0.4)) - borderH
 
-		m.ResponseWidth = msg.Width*60/100 + addon
+		leftOuter = max(leftOuter, 1)
+		responseOuter := msg.Width - leftOuter
+
+		// inner viewport width for response excludes the border
+		m.ResponseWidth = responseOuter - borderH
+
+		m.ResponseWidth = max(m.ResponseWidth, 1)
+
 		if !m.ViewportReady {
 			m.Viewport = viewport.New(viewport.WithWidth(m.ResponseWidth), viewport.WithHeight(m.ResponseHeight))
 			m.ViewportReady = true
@@ -121,9 +128,14 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 				m.Hovered = true
 
 				t := table.NewWriter()
+				// compute column widths using rounded splits of the response viewport width
+				keyWidth := int(math.Round(float64(m.ResponseWidth) * 0.4))
+				keyWidth = max(keyWidth, 1)
+				valueWidth := m.ResponseWidth - keyWidth - 2
+				valueWidth = max(valueWidth, 1)
 				t.AppendHeader(table.Row{
-					lipgloss.NewStyle().Width(m.ResponseWidth * 40 / 100).Render("Key"),
-					lipgloss.NewStyle().Width(m.ResponseWidth * 60 / 100).Render("Value"),
+					lipgloss.NewStyle().Width(keyWidth).Render("Key"),
+					lipgloss.NewStyle().Width(valueWidth).Render("Value"),
 				})
 				t.Style().Size.WidthMin = m.ResponseWidth
 				t.Style().Box.UnfinishedRow = ""
@@ -146,7 +158,7 @@ func (m ResponseModel) Update(msg tea.Msg) (ResponseModel, tea.Cmd) {
 				}
 				sort.Strings(headers)
 				for _, key := range headers {
-					t.AppendRow(table.Row{wrap.String(key, m.ResponseWidth*40/100), wrap.String(m.Result.Headers.Get(key), m.ResponseWidth*60/100-2)})
+					t.AppendRow(table.Row{wrap.String(key, keyWidth), wrap.String(m.Result.Headers.Get(key), valueWidth)})
 				}
 				m.Viewport.SetContent(t.Render())
 			} else if zone.Get("responseCookies").InBounds(msg) {

@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -136,10 +137,22 @@ func body(m MainModel) string {
 		}
 	}
 
-	//BUG: i dont know why but if i add 1 to response section when window width it wont error
-	bugAddon := 0
-	if m.WindowWidth%10 == 5 {
-		bugAddon = 1
+	// Use widths that models compute so inner view sizes match their content
+	borderH := utils.BoxStyle.GetHorizontalBorderSize()
+
+	// request outer width as computed in request.Update
+	requestOuter := m.RequestModel.RequestWidth
+	if requestOuter <= 0 {
+		requestOuter = int(math.Round(float64(bodyWidth)*0.4)) - borderH
+		requestOuter = max(requestOuter, 1)
+	}
+
+	// response inner width (viewport) as computed in response.Update
+	responseInner := m.ResponseModel.ResponseWidth
+	if responseInner <= 0 {
+		// fallback: remaining width after request and border
+		responseInner = bodyWidth - requestOuter - borderH
+		responseInner = max(responseInner, 1)
 	}
 
 	requestSection := lipgloss.JoinVertical(
@@ -147,23 +160,13 @@ func body(m MainModel) string {
 		lipgloss.NewStyle().Align(lipgloss.Left).Render(strings.Join(requestTabs, "|")),
 		lipgloss.NewStyle().
 			Height(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1).
-			Width(bodyWidth*40/100-utils.BoxStyle.GetHorizontalBorderSize()-bugAddon).
+			Width(requestOuter).
 			BorderForeground(lipgloss.Color(requestHoveredColor)).
-			Border(lipgloss.RoundedBorder()).Render(
-			// fmt.Sprintf("%.2f, responseheight: %v, lencontent: %v",
-			// m.ResponseModel.Viewport.ScrollPercent(),
-			// m.ResponseModel.ResponseHeight,
-			// m.ResponseModel.Viewport.TotalLineCount(),
-			m.RequestModel.View(),
-		))
+			Border(lipgloss.RoundedBorder()).Render(m.RequestModel.View()),
+	)
 	// requestSection = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Width(bodyWidth*40/100 - 3).Height(bodyHeight - 3).Render("")
 
 	// Response Section (right section)
-
-	var addon int
-	if m.WindowWidth%10 != 0 {
-		addon = 1
-	}
 
 	var responseHoveredColor string
 	if m.ResponseModel.Hovered {
@@ -172,8 +175,9 @@ func body(m MainModel) string {
 
 	// minus 1 for the tabs
 	left, right := utils.PrintHorizontalBorder(bodyHeight-utils.BoxStyle.GetHorizontalBorderSize()-1, m.ResponseModel.Viewport.TotalLineCount(), m.ResponseModel.Viewport.ScrollPercent())
-	// BUG: + utils.boxStyle... i dont know why i have to add ts
-	top, bottom := utils.PrintVerticalBorder(bodyWidth*60/100 + utils.BoxStyle.GetHorizontalBorderSize() + addon)
+	// compute outer width for response (inner viewport width + border size)
+	responseOuter := responseInner + borderH
+	top, bottom := utils.PrintVerticalBorder(responseOuter)
 
 	content := lipgloss.JoinVertical(
 		lipgloss.Top,
@@ -192,12 +196,12 @@ func body(m MainModel) string {
 		responseContent = lipgloss.NewStyle().
 			// minus 1 for the tabs
 			Height(bodyHeight-1).
-			Width(bodyWidth*60/100+utils.BoxStyle.GetHorizontalBorderSize()+addon).
+			Width(responseInner).
 			Align(lipgloss.Center, lipgloss.Center).
 			BorderForeground(lipgloss.Color(responseHoveredColor)).
 			Border(lipgloss.RoundedBorder()).Render(m.spinner.View())
 	} else {
-		responseContent = lipgloss.NewStyle().Render(zone.Mark("response", content))
+		responseContent = lipgloss.NewStyle().Width(responseOuter).Render(zone.Mark("response", content))
 	}
 
 	var responseTabs []string
@@ -225,22 +229,6 @@ func body(m MainModel) string {
 			// 	}
 		}
 	}
-
-	// var responseStatusCode string
-	// if m.ResponseModel.Result.StatusCode == 0 {
-	// 	responseStatusCode = ""
-	// } else if m.ResponseModel.Result.StatusCode < 300 {
-	// 	responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.GreenColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
-	// } else if m.ResponseModel.Result.StatusCode < 400 {
-	// 	responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.OrangeColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
-	// } else {
-	// 	responseStatusCode = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.RedColor)).Render(strconv.Itoa(m.ResponseModel.Result.StatusCode))
-	// }
-
-	// var copyButton string
-	// if m.ResponseModel.FocusedTab == response.Body && m.ResponseModel.Result.Data != nil {
-	// 	copyButton = zone.Mark("copyResponseBody", lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(utils.OrangeColor)).Render("Copy"))
-	// }
 
 	responseTabsSection := strings.Join(responseTabs, "|")
 	responseSection := lipgloss.JoinVertical(
@@ -279,25 +267,18 @@ func header(m MainModel) string {
 	case method.DELETE:
 		color = utils.RedColor
 	}
-	// width add 1 (one) cause i use separator
-	method := lipgloss.NewStyle().Width(m.WindowWidth*10/100+1).Align(lipgloss.Center, lipgloss.Center).Foreground(lipgloss.Color(color))
+	// compute send button and method widths using rounding
+	sendBtnWidth := int(math.Round(float64(m.WindowWidth) * 0.1))
+	sendBtnWidth = max(sendBtnWidth, 1)
+
+	method := lipgloss.NewStyle().Width(sendBtnWidth+1).Align(lipgloss.Center, lipgloss.Center).Foreground(lipgloss.Color(color))
 
 	sendButton := lipgloss.NewStyle().
-		Width(m.WindowWidth*10/100).
+		Width(sendBtnWidth).
 		Align(lipgloss.Center, lipgloss.Top).
 		Foreground(lipgloss.Color(utils.BlueColor)).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color(utils.BlueColor))
-
-	// XXX: dunno why but i have to add the widht by 1
-	if m.WindowWidth%10 != 0 {
-		sendButton = lipgloss.NewStyle().
-			Width(m.WindowWidth*10/100+1).
-			Align(lipgloss.Center, lipgloss.Top).
-			Foreground(lipgloss.Color(utils.BlueColor)).
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color(utils.BlueColor))
-	}
 
 	separator := utils.Separator.Render(utils.Line.Foreground(lipgloss.Color(utils.WhiteColor)).Render())
 
@@ -306,7 +287,7 @@ func header(m MainModel) string {
 	}
 	URLAndMethod := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		Width(m.WindowWidth*90/100).
+		Width(m.WindowWidth-sendBtnWidth).
 		Render(
 			zone.Mark("method", method.Render(utils.BoldStyle.Render(m.MethodModel.ActiveState.String()))),
 			separator,
