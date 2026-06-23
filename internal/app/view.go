@@ -271,7 +271,7 @@ func header(m MainModel) string {
 	sendBtnWidth := int(math.Round(float64(m.WindowWidth) * 0.1))
 	sendBtnWidth = max(sendBtnWidth, 1)
 
-	method := lipgloss.NewStyle().Width(sendBtnWidth+1).Align(lipgloss.Center, lipgloss.Center).Foreground(lipgloss.Color(color))
+	method := lipgloss.NewStyle().Width(sendBtnWidth+1).Align(lipgloss.Center, lipgloss.Center).Bold(true).Foreground(lipgloss.Color(color))
 
 	sendButton := lipgloss.NewStyle().
 		Width(sendBtnWidth).
